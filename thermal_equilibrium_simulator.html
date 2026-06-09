@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermal Equilibrium Simulator | Simulator Keseimbangan Termal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Custom scrollbar for better styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-teal-500 selection:text-slate-900 transition-colors duration-300">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-gradient-to-tr from-amber-500 to-rose-600 rounded-lg shadow-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-orange-400 via-rose-400 to-teal-400 bg-clip-text text-transparent" id="nav-title">
+                        Thermal Equilibrium Simulator
+                    </h1>
+                    <p class="text-xs text-slate-400 hidden sm:block" id="nav-subtitle">Physics Education Interactive Tool</p>
+                </div>
+            </div>
+            
+            <!-- Language Toggle Buttons -->
+            <div class="flex items-center space-x-1 bg-slate-800 p-1 rounded-lg border border-slate-700">
+                <button onclick="setLanguage('en')" id="btn-en" class="px-3 py-1 text-xs font-semibold rounded transition-all duration-200 bg-teal-500 text-slate-950 shadow">
+                    English
+                </button>
+                <button onclick="setLanguage('ms')" id="btn-ms" class="px-3 py-1 text-xs font-semibold rounded transition-all duration-200 text-slate-400 hover:text-slate-100">
+                    BM
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+        
+        <!-- Top Section: Overview & Goals -->
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-orange-500/10 rounded-full blur-2xl"></div>
+            <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-teal-500/10 rounded-full blur-2xl"></div>
+            
+            <div class="relative z-10">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-3" id="badge-topic">
+                    Heat & Thermodynamics
+                </span>
+                <h2 class="text-2xl font-extrabold text-white" id="main-heading">Understanding Thermal Equilibrium</h2>
+                <p class="mt-2 text-sm text-slate-300 max-w-4xl leading-relaxed" id="main-desc">
+                    When two objects with different temperatures are placed in thermal contact, heat energy transfers between them. Use this tool to observe the transition, analyze the temperature curve, and use the guided prompts below to write an outstanding physics essay!
+                </p>
+            </div>
+        </div>
+
+        <!-- Middle Section: Interactive Simulator & Live Data Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Side (lg:col-span-7) - Controls and Canvas Visualizer -->
+            <div class="lg:col-span-7 space-y-6 flex flex-col justify-between">
+                
+                <!-- Controls Card -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+                    <h3 class="text-base font-bold text-slate-200 flex items-center space-x-2" id="controls-title">
+                        <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                        <span>Simulation Control & Parameters</span>
+                    </h3>
+
+                    <!-- Sliders & Material Selection Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Object A (Left/Hot/Cold) Config -->
+                        <div class="space-y-4 p-4 rounded-xl bg-slate-950/50 border border-slate-800/80">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <span class="font-bold text-orange-400 flex items-center space-x-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+                                    <span id="label-objA">Object A</span>
+                                </span>
+                                <span class="text-xs bg-orange-500/10 text-orange-400 px-2 py-0.5 rounded" id="label-initial">Initial State</span>
+                            </div>
+
+                            <!-- Material Select -->
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1" id="label-matA">Material & Specific Heat ($c$)</label>
+                                <select id="matA" onchange="updateMaterials()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-teal-500">
+                                    <option value="water">Water (c = 4200 J/kg°C)</option>
+                                    <option value="copper" selected>Copper (c = 390 J/kg°C)</option>
+                                    <option value="iron">Iron (c = 450 J/kg°C)</option>
+                                    <option value="aluminum">Aluminum (c = 900 J/kg°C)</option>
+                                </select>
+                            </div>
+
+                            <!-- Temperature Slider -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span id="label-tempA">Initial Temperature</span>
+                                    <span class="font-bold text-orange-400"><span id="val-tempA">80</span> °C</span>
+                                </div>
+                                <input type="range" id="slide-tempA" min="0" max="100" value="80" oninput="handleSliderChange()" class="w-full accent-orange-500 cursor-pointer">
+                            </div>
+
+                            <!-- Mass Slider -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span id="label-massA">Mass ($m$)</span>
+                                    <span class="font-bold text-orange-400"><span id="val-massA">1.0</span> kg</span>
+                                </div>
+                                <input type="range" id="slide-massA" min="0.1" max="5.0" step="0.1" value="1.0" oninput="handleSliderChange()" class="w-full accent-orange-500 cursor-pointer">
+                            </div>
+                        </div>
+
+                        <!-- Object B (Right/Cold/Hot) Config -->
+                        <div class="space-y-4 p-4 rounded-xl bg-slate-950/50 border border-slate-800/80">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <span class="font-bold text-sky-400 flex items-center space-x-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse"></span>
+                                    <span id="label-objB">Object B</span>
+                                </span>
+                                <span class="text-xs bg-sky-500/10 text-sky-400 px-2 py-0.5 rounded" id="label-initialB">Initial State</span>
+                            </div>
+
+                            <!-- Material Select -->
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1" id="label-matB">Material & Specific Heat ($c$)</label>
+                                <select id="matB" onchange="updateMaterials()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-teal-500">
+                                    <option value="water">Water (c = 4200 J/kg°C)</option>
+                                    <option value="copper">Copper (c = 390 J/kg°C)</option>
+                                    <option value="iron" selected>Iron (c = 450 J/kg°C)</option>
+                                    <option value="aluminum">Aluminum (c = 900 J/kg°C)</option>
+                                </select>
+                            </div>
+
+                            <!-- Temperature Slider -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span id="label-tempB">Initial Temperature</span>
+                                    <span class="font-bold text-sky-400"><span id="val-tempB">20</span> °C</span>
+                                </div>
+                                <input type="range" id="slide-tempB" min="0" max="100" value="20" oninput="handleSliderChange()" class="w-full accent-sky-500 cursor-pointer">
+                            </div>
+
+                            <!-- Mass Slider -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span id="label-massB">Mass ($m$)</span>
+                                    <span class="font-bold text-sky-400"><span id="val-massB">1.5</span> kg</span>
+                                </div>
+                                <input type="range" id="slide-massB" min="0.1" max="5.0" step="0.1" value="1.5" oninput="handleSliderChange()" class="w-full accent-sky-500 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Simulator Trigger Buttons -->
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button id="btn-start" onclick="toggleSim()" class="flex-1 min-w-[120px] bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg transition-colors duration-200 flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+                            <span id="btn-start-text">Start Simulation</span>
+                        </button>
+                        
+                        <button id="btn-reset" onclick="resetSim()" class="flex-1 min-w-[120px] bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-3 px-4 rounded-xl border border-slate-700 transition-colors duration-200 flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 15H18"/></svg>
+                            <span id="btn-reset-text">Reset</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Interactive Thermal Contact Visualizer (Canvas) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-bold text-slate-200 flex items-center space-x-2" id="visualizer-title">
+                            <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <span>Live Thermal Transfer View</span>
+                        </h3>
+                        <span id="status-indicator" class="text-xs font-semibold text-rose-400 bg-rose-500/10 px-3 py-1 rounded-full flex items-center space-x-1.5 animate-pulse">
+                            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                            <span id="status-text">Ready to transfer</span>
+                        </span>
+                    </div>
+
+                    <!-- Contact Interface Panel -->
+                    <div class="relative bg-slate-950 rounded-xl p-4 border border-slate-800 flex flex-col items-center">
+                        <!-- Canvas element representing heat transfer -->
+                        <canvas id="thermalCanvas" class="w-full max-w-lg h-44 rounded-lg bg-slate-950"></canvas>
+                        
+                        <!-- Heat Flow Arrow/Message Overlay -->
+                        <div class="mt-4 text-center w-full max-w-lg border-t border-slate-800/80 pt-3 flex flex-col items-center justify-center space-y-1">
+                            <span class="text-xs text-slate-400" id="flow-label">Net Heat Flow Status</span>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-bold tracking-wide" id="flow-status-value">No Contact Established</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Side (lg:col-span-5) - Real-time Plotting & Theoretical Values -->
+            <div class="lg:col-span-5 space-y-6 flex flex-col justify-between">
+                
+                <!-- Theory & Math Board (Dynamic Calculator) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex-1 flex flex-col justify-between space-y-4">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-200 flex items-center space-x-2 border-b border-slate-800 pb-3" id="math-title">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            <span>Theoretical Prediction Board</span>
+                        </h3>
+                        
+                        <div class="space-y-4 mt-4">
+                            <!-- Formula -->
+                            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-center">
+                                <span class="text-xs text-slate-400 block mb-1" id="label-formula">Heat Conservation Equation</span>
+                                <code class="text-xs sm:text-sm font-semibold text-teal-400">Q_lost = Q_gained &rArr; m₁c₁(T₁ - T_f) = m₂c₂(T_f - T₂)</code>
+                            </div>
+
+                            <!-- Real-time Values Display -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="p-3 bg-slate-950/40 border border-slate-800/80 rounded-xl text-center">
+                                    <span class="text-[10px] uppercase text-slate-500 block" id="card-tempA">Object A Temp</span>
+                                    <span class="text-lg font-bold text-orange-400" id="live-tempA">80.0 °C</span>
+                                </div>
+                                <div class="p-3 bg-slate-950/40 border border-slate-800/80 rounded-xl text-center">
+                                    <span class="text-[10px] uppercase text-slate-500 block" id="card-tempB">Object B Temp</span>
+                                    <span class="text-lg font-bold text-sky-400" id="live-tempB">20.0 °C</span>
+                                </div>
+                            </div>
+
+                            <!-- Final Equilibrium Target -->
+                            <div class="p-4 bg-gradient-to-r from-teal-500/10 to-blue-500/10 border border-teal-500/20 rounded-xl flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-teal-300 font-medium block" id="eq-target-label">Calculated Final Temp (T_f)</span>
+                                    <span class="text-sm text-slate-400" id="eq-target-subtitle">At equilibrium when rates unify</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-2xl font-black text-teal-400" id="calc-final-temp">--.- °C</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span id="label-progress">Thermal Equilibrium Progress</span>
+                            <span id="progress-percent" class="font-bold text-teal-400">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800">
+                            <div id="progress-bar" class="bg-gradient-to-r from-orange-500 via-rose-500 to-teal-500 h-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphical Representation Card -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex-1 flex flex-col justify-between">
+                    <h3 class="text-base font-bold text-slate-200 flex items-center space-x-2 mb-3" id="chart-title">
+                        <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                        <span>Temperature vs Time Graph</span>
+                    </h3>
+                    <div class="relative w-full h-48 sm:h-56">
+                        <canvas id="tempChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Essay Helper Component (Crucial for high school exams & assessments) -->
+        <section class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-80 h-80 bg-teal-500/5 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="relative z-10 space-y-6">
+                <!-- Essay Section Header -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-800 pb-5 gap-4">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-teal-300 flex items-center space-x-3">
+                            <svg class="w-6 h-6 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2.5 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            <span id="essay-title">Interactive Essay Writing Guide</span>
+                        </h2>
+                        <p class="text-sm text-slate-400 mt-1" id="essay-subtitle">Draft a scientific explanation that scores high in physics papers!</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="copyEssayGuide()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2 px-4 rounded-xl border border-slate-700 transition flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                            <span id="btn-copy">Copy Guide Outline</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Essay Guide Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    <!-- Core Step 1 -->
+                    <div class="p-5 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-3">
+                        <div class="w-8 h-8 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-sm">1</div>
+                        <h4 class="font-bold text-slate-100 text-sm" id="step1-title">Thermal Contact & Temperature</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed" id="step1-desc">
+                            Explain the condition of thermal contact. Identify which block is hotter and which block is colder.
+                        </p>
+                        <div class="pt-2">
+                            <span class="block text-[10px] uppercase text-slate-500 mb-1" id="sc-label1">Sentence Starters</span>
+                            <p class="text-xs text-teal-400/90 italic cursor-pointer" onclick="fillDraft(1)" id="starter1">"Object A has a higher temperature..."</p>
+                        </div>
+                    </div>
+
+                    <!-- Core Step 2 -->
+                    <div class="p-5 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-3">
+                        <div class="w-8 h-8 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-sm">2</div>
+                        <h4 class="font-bold text-slate-100 text-sm" id="step2-title">Direction of Heat Flow</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed" id="step2-desc">
+                            Explain how heat transfer flows simultaneously in both directions, but state the direction of net heat flow.
+                        </p>
+                        <div class="pt-2">
+                            <span class="block text-[10px] uppercase text-slate-500 mb-1" id="sc-label2">Sentence Starters</span>
+                            <p class="text-xs text-teal-400/90 italic cursor-pointer" onclick="fillDraft(2)" id="starter2">"Heat is transferred simultaneously..."</p>
+                        </div>
+                    </div>
+
+                    <!-- Core Step 3 -->
+                    <div class="p-5 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-3">
+                        <div class="w-8 h-8 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-sm">3</div>
+                        <h4 class="font-bold text-slate-100 text-sm" id="step3-title">Rate of Heat Transfer</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed" id="step3-desc">
+                            Discuss how the rate of heat flow changes. As the temperature difference decreases, the net flow rate decreases.
+                        </p>
+                        <div class="pt-2">
+                            <span class="block text-[10px] uppercase text-slate-500 mb-1" id="sc-label3">Sentence Starters</span>
+                            <p class="text-xs text-teal-400/90 italic cursor-pointer" onclick="fillDraft(3)" id="starter3">"As the temperature difference..."</p>
+                        </div>
+                    </div>
+
+                    <!-- Core Step 4 -->
+                    <div class="p-5 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-3">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">4</div>
+                        <h4 class="font-bold text-slate-100 text-sm" id="step4-title">The Equilibrium State</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed" id="step4-desc">
+                            Define what happens at equilibrium: final temperatures are equal, net heat flow is zero.
+                        </p>
+                        <div class="pt-2">
+                            <span class="block text-[10px] uppercase text-slate-500 mb-1" id="sc-label4">Sentence Starters</span>
+                            <p class="text-xs text-teal-400/90 italic cursor-pointer" onclick="fillDraft(4)" id="starter4">"When thermal equilibrium is reached..."</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Custom Draft Notebook Area -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-slate-200 flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+                            <span id="notebook-title">Interactive Essay Practice Draft</span>
+                        </h3>
+                        <span class="text-xs text-slate-500" id="notebook-guide">Draft your essay live based on current simulation values</span>
+                    </div>
+                    <textarea id="essay-draft" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-500 h-40 focus:ring-1 focus:ring-teal-500" placeholder="Start typing your essay here... Click 'Sentence Starters' to paste templates directly."></textarea>
+                    
+                    <div class="flex justify-between items-center text-xs text-slate-500">
+                        <div>
+                            <span id="notebook-words">Words:</span> <span id="word-count" class="font-semibold text-slate-300">0</span>
+                        </div>
+                        <button onclick="clearDraft()" class="text-rose-400 hover:text-rose-300 font-medium hover:underline transition" id="btn-clear-draft">Clear Workspace</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom alert notification container -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-800 border border-teal-500 text-teal-400 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2 max-w-sm pointer-events-none">
+        <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-xs font-semibold" id="toast-message">Copied successfully!</span>
+    </div>
+
+    <!-- Simulation Script & Math Mechanics -->
+    <script>
+        // Global State Variables
+        let lang = 'en';
+        let isRunning = false;
+        let animationId = null;
+        let currentTimer = 0;
+
+        // Physical Parameters
+        let tempA = 80;
+        let massA = 1.0;
+        let specHeatA = 390; // Copper as default
+        
+        let tempB = 20;
+        let massB = 1.5;
+        let specHeatB = 450; // Iron as default
+
+        // Material Constants (Specific Heat Capacity J/kg°C)
+        const materials = {
+            water: 4200,
+            copper: 390,
+            iron: 450,
+            aluminum: 900
+        };
+
+        // Graph data
+        let chartData = {
+            labels: [],
+            tempAHistory: [],
+            tempBHistory: []
+        };
+        let tempChartInstance = null;
+
+        // Particle dynamics for visualizer
+        const canvas = document.getElementById('thermalCanvas');
+        const ctx = canvas.getContext('2d');
+        let heatParticles = [];
+
+        // Setup resize handling for visualizer Canvas
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = 176; // Maintain explicit h-44 in scale
+            drawBlocks();
+        }
+
+        // Dictionary of Texts
+        const dict = {
+            en: {
+                navTitle: "Thermal Equilibrium Simulator",
+                navSubtitle: "Physics Education Interactive Tool",
+                badgeTopic: "Heat & Thermodynamics",
+                mainHeading: "Thermal Equilibrium Visualizer",
+                mainDesc: "When two objects with different temperatures are placed in thermal contact, heat energy transfers between them. Use this tool to observe the transition, analyze the temperature curve, and use the guided prompts below to write an outstanding physics essay!",
+                controlsTitle: "Simulation Control & Parameters",
+                labelObjA: "Object A (Left)",
+                labelObjB: "Object B (Right)",
+                labelInitial: "Initial State",
+                labelInitialB: "Initial State",
+                labelMatA: "Material & Specific Heat (c)",
+                labelMatB: "Material & Specific Heat (c)",
+                labelTempA: "Initial Temperature",
+                labelTempB: "Initial Temperature",
+                labelMassA: "Mass (m)",
+                labelMassB: "Mass (m)",
+                btnStart: "Start Simulation",
+                btnPause: "Pause",
+                btnReset: "Reset",
+                visualizerTitle: "Live Thermal Transfer View",
+                statusReady: "Ready to transfer",
+                statusActive: "Heat transferring...",
+                statusEquilibrium: "Thermal Equilibrium reached!",
+                statusPaused: "Simulation Paused",
+                flowLabel: "Net Heat Flow Status",
+                flowInitial: "No contact. Setup parameters & start.",
+                flowHotToCold: "Net heat flow is directed from Object A to Object B",
+                flowColdToHot: "Net heat flow is directed from Object B to Object A",
+                flowEquil: "Thermal Equilibrium: Net heat flow is zero",
+                mathTitle: "Theoretical Prediction Board",
+                labelFormula: "Heat Conservation Principle",
+                cardTempA: "Object A Temp",
+                cardTempB: "Object B Temp",
+                eqTargetLabel: "Calculated Final Temp (T_f)",
+                eqTargetSubtitle: "At thermal equilibrium",
+                labelProgress: "Thermal Equilibrium Progress",
+                chartTitle: "Temperature vs Time Graph",
+                essayTitle: "Interactive Essay Writing Guide",
+                essaySubtitle: "Draft a scientific explanation that scores high in physics papers!",
+                btnCopy: "Copy Guide Outline",
+                step1Title: "1. Thermal Contact",
+                step1Desc: "State that Object A and Object B are placed in thermal contact so that thermal transfer can occur.",
+                starter1: '"Object A and Object B are in thermal contact. Object A has a higher temperature than Object B..."',
+                step2Title: "2. Heat Flow Direction",
+                step2Desc: "Explain how heat energy transfers in both directions, but the net rate flows from hot to cold.",
+                starter2: '"Heat energy is transferred from both blocks simultaneously, but the rate of heat flow from Object A to B is higher..."',
+                step3Title: "3. Rate Change",
+                step3Desc: "Explain how the rate of net heat transfer gradually decreases as the temperature difference reduces.",
+                starter3: '"As the temperature difference between the blocks decreases, the net rate of heat transfer slows down..."',
+                step4Title: "4. Equilibrium State",
+                step4Desc: "Describe the equilibrium state. The temperatures become equal and net heat flow becomes zero.",
+                starter4: '"Finally, both blocks reach the same temperature. Net heat transfer is zero, and they are in thermal equilibrium..."',
+                notebookTitle: "Interactive Essay Practice Draft",
+                notebookGuide: "Draft your essay live based on current simulation values",
+                notebookWords: "Words:",
+                btnClearDraft: "Clear Workspace",
+                toastCopy: "Essay guide & structure copied to clipboard!",
+                toastClear: "Workspace cleared!"
+            },
+            ms: {
+                navTitle: "Simulator Keseimbangan Termal",
+                navSubtitle: "Alat Interaktif Pendidikan Fizik",
+                badgeTopic: "Haba & Termodinamik",
+                mainHeading: "Visualisasi Keseimbangan Termal",
+                mainDesc: "Apabila dua objek dengan suhu yang berbeza diletakkan dalam sentuhan termal, tenaga haba akan dipindahkan antara satu sama lain. Gunakan alat ini untuk memerhati peralihan, menganalisis lengkung suhu, dan gunakan panduan di bawah untuk menulis esei fizik yang cemerlang!",
+                controlsTitle: "Kawalan & Parameter Simulasi",
+                labelObjA: "Objek A (Kiri)",
+                labelObjB: "Objek B (Kanan)",
+                labelInitial: "Keadaan Awal",
+                labelInitialB: "Keadaan Awal",
+                labelMatA: "Bahan & Muatan Haba Tentu (c)",
+                labelMatB: "Bahan & Muatan Haba Tentu (c)",
+                labelTempA: "Suhu Awal",
+                labelTempB: "Suhu Awal",
+                labelMassA: "Jisim (m)",
+                labelMassB: "Jisim (m)",
+                btnStart: "Mula Simulasi",
+                btnPause: "Jeda",
+                btnReset: "Set Semula",
+                visualizerTitle: "Paparan Pemindahan Termal Langsung",
+                statusReady: "Sedia untuk dipindahkan",
+                statusActive: "Haba sedang mengalir...",
+                statusEquilibrium: "Keseimbangan Termal dicapai!",
+                statusPaused: "Simulasi Dijeda",
+                flowLabel: "Status Aliran Haba Bersih",
+                flowInitial: "Tiada sentuhan. Tetapkan parameter & mulakan.",
+                flowHotToCold: "Aliran haba bersih dialirkan dari Objek A ke Objek B",
+                flowColdToHot: "Aliran haba bersih dialirkan dari Objek B ke Objek A",
+                flowEquil: "Keseimbangan Termal: Aliran haba bersih adalah sifar",
+                mathTitle: "Papan Ramalan Teori",
+                labelFormula: "Prinsip Keabadian Haba",
+                cardTempA: "Suhu Objek A",
+                cardTempB: "Suhu Objek B",
+                eqTargetLabel: "Suhu Akhir Ditentukan (T_f)",
+                eqTargetSubtitle: "Suhu pada keseimbangan termal",
+                labelProgress: "Kemajuan Keseimbangan Termal",
+                chartTitle: "Graf Suhu melawan Masa",
+                essayTitle: "Panduan Penulisan Esei Interaktif",
+                essaySubtitle: "Rangka penjelasan saintifik untuk skor tinggi dalam kertas fizik!",
+                btnCopy: "Salin Rangka Panduan",
+                step1Title: "1. Sentuhan Termal",
+                step1Desc: "Nyatakan bahawa Objek A dan Objek B diletakkan dalam sentuhan termal bagi membolehkan pemindahan haba berlaku.",
+                starter1: '"Objek A dan Objek B berada dalam sentuhan termal. Objek A mempunyai suhu lebih tinggi daripada Objek B..."',
+                step2Title: "2. Arah Aliran Haba",
+                step2Desc: "Terangkan bagaimana tenaga haba mengalir ke kedua-dua arah, tetapi kadar bersih dari panas ke sejuk.",
+                starter2: '"Tenaga haba dipindahkan daripada kedua-dua blok secara serentak, tetapi kadar pengaliran haba dari A ke B adalah lebih tinggi..."',
+                step3Title: "3. Perubahan Kadar",
+                step3Desc: "Terangkan bagaimana kadar pemindahan haba bersih berkurang secara beransur-ansur apabila perbezaan suhu berkurang.",
+                starter3: '"Apabila perbezaan suhu antara blok berkurang, kadar bersih pemindahan haba menjadi perlahan..."',
+                step4Title: "4. Keadaan Keseimbangan",
+                step4Desc: "Huraikan keadaan keseimbangan termal. Suhu akhir adalah sama dan kadar pemindahan haba bersih ialah sifar.",
+                starter4: '"Akhirnya, kedua-dua blok mencapai suhu yang sama. Aliran haba bersih menjadi sifar, dan keseimbangan termal dicapai..."',
+                notebookTitle: "Draf Latihan Esei Interaktif",
+                notebookGuide: "Tulis draf esei anda berdasarkan nilai simulasi masa nyata",
+                notebookWords: "Perkataan:",
+                btnClearDraft: "Kosongkan Ruang Kerja",
+                toastCopy: "Panduan esei & rangka kerja berjaya disalin!",
+                toastClear: "Ruang kerja dikosongkan!"
+            }
+        };
+
+        // Initialize UI translation
+        function updateUI() {
+            const translation = dict[lang];
+            
+            // Text Elements
+            document.getElementById('nav-title').innerText = translation.navTitle;
+            document.getElementById('nav-subtitle').innerText = translation.navSubtitle;
+            document.getElementById('badge-topic').innerText = translation.badgeTopic;
+            document.getElementById('main-heading').innerText = translation.mainHeading;
+            document.getElementById('main-desc').innerText = translation.mainDesc;
+            document.getElementById('controls-title').innerText = translation.controlsTitle;
+            document.getElementById('label-objA').innerText = translation.labelObjA;
+            document.getElementById('label-objB').innerText = translation.labelObjB;
+            document.getElementById('label-initial').innerText = translation.labelInitial;
+            document.getElementById('label-initialB').innerText = translation.labelInitial;
+            document.getElementById('label-matA').innerText = translation.labelMatA;
+            document.getElementById('label-matB').innerText = translation.labelMatB;
+            document.getElementById('label-tempA').innerText = translation.labelTempA;
+            document.getElementById('label-tempB').innerText = translation.labelTempB;
+            document.getElementById('label-massA').innerText = translation.labelMassA;
+            document.getElementById('label-massB').innerText = translation.labelMassB;
+            
+            // Buttons
+            document.getElementById('btn-reset-text').innerText = translation.btnReset;
+            updateStartButtonText();
+
+            // Card details
+            document.getElementById('visualizer-title').innerText = translation.visualizerTitle;
+            document.getElementById('flow-label').innerText = translation.flowLabel;
+            document.getElementById('math-title').innerText = translation.mathTitle;
+            document.getElementById('label-formula').innerText = translation.labelFormula;
+            document.getElementById('card-tempA').innerText = translation.cardTempA;
+            document.getElementById('card-tempB').innerText = translation.cardTempB;
+            document.getElementById('eq-target-label').innerText = translation.eqTargetLabel;
+            document.getElementById('eq-target-subtitle').innerText = translation.eqTargetSubtitle;
+            document.getElementById('label-progress').innerText = translation.labelProgress;
+            document.getElementById('chart-title').innerText = translation.chartTitle;
+
+            // Essay section
+            document.getElementById('essay-title').innerText = translation.essayTitle;
+            document.getElementById('essay-subtitle').innerText = translation.essaySubtitle;
+            document.getElementById('btn-copy').innerText = translation.btnCopy;
+            
+            document.getElementById('step1-title').innerText = translation.step1Title;
+            document.getElementById('step1-desc').innerText = translation.step1Desc;
+            document.getElementById('starter1').innerText = translation.starter1;
+
+            document.getElementById('step2-title').innerText = translation.step2Title;
+            document.getElementById('step2-desc').innerText = translation.step2Desc;
+            document.getElementById('starter2').innerText = translation.starter2;
+
+            document.getElementById('step3-title').innerText = translation.step3Title;
+            document.getElementById('step3-desc').innerText = translation.step3Desc;
+            document.getElementById('starter3').innerText = translation.starter3;
+
+            document.getElementById('step4-title').innerText = translation.step4Title;
+            document.getElementById('step4-desc').innerText = translation.step4Desc;
+            document.getElementById('starter4').innerText = translation.starter4;
+
+            document.getElementById('notebook-title').innerText = translation.notebookTitle;
+            document.getElementById('notebook-guide').innerText = translation.notebookGuide;
+            document.getElementById('notebook-words').innerText = translation.notebookWords;
+            document.getElementById('btn-clear-draft').innerText = translation.btnClearDraft;
+
+            // Set placeholder for draft textarea dynamically
+            if (lang === 'en') {
+                document.getElementById('essay-draft').placeholder = "Start typing your essay here... Click 'Sentence Starters' to paste templates directly. Use current values like Initial Temp (A: " + document.getElementById('val-tempA').innerText + "°C, B: " + document.getElementById('val-tempB').innerText + "°C) and predicted final Temp: " + document.getElementById('calc-final-temp').innerText + ".";
+            } else {
+                document.getElementById('essay-draft').placeholder = "Mula menulis esei anda di sini... Klik pada 'Sentence Starters' untuk menampal rangka ayat secara langsung. Gunakan nilai semasa seperti Suhu Awal (A: " + document.getElementById('val-tempA').innerText + "°C, B: " + document.getElementById('val-tempB').innerText + "°C) dan suhu keseimbangan ramalan: " + document.getElementById('calc-final-temp').innerText + ".";
+            }
+
+            // Update status indicators
+            updateStatusText();
+            updateChartConfigLabels();
+        }
+
+        // Change App Language State
+        function setLanguage(selectedLang) {
+            lang = selectedLang;
+            
+            // Styling updates to tab buttons
+            const btnEn = document.getElementById('btn-en');
+            const btnMs = document.getElementById('btn-ms');
+            
+            if (lang === 'en') {
+                btnEn.className = "px-3 py-1 text-xs font-semibold rounded transition-all duration-200 bg-teal-500 text-slate-950 shadow";
+                btnMs.className = "px-3 py-1 text-xs font-semibold rounded transition-all duration-200 text-slate-400 hover:text-slate-100";
+            } else {
+                btnMs.className = "px-3 py-1 text-xs font-semibold rounded transition-all duration-200 bg-teal-500 text-slate-950 shadow";
+                btnEn.className = "px-3 py-1 text-xs font-semibold rounded transition-all duration-200 text-slate-400 hover:text-slate-100";
+            }
+
+            updateUI();
+        }
+
+        function updateStartButtonText() {
+            const btnText = document.getElementById('btn-start-text');
+            if (isRunning) {
+                btnText.innerText = dict[lang].btnPause;
+            } else {
+                btnText.innerText = dict[lang].btnStart;
+            }
+        }
+
+        function updateStatusText() {
+            const statusText = document.getElementById('status-text');
+            const flowValue = document.getElementById('flow-status-value');
+            const translation = dict[lang];
+
+            const diff = Math.abs(tempA - tempB);
+            const initialDiff = Math.abs(parseFloat(document.getElementById('slide-tempA').value) - parseFloat(document.getElementById('slide-tempB').value));
+
+            if (diff < 0.05 && currentTimer > 0) {
+                statusText.innerText = translation.statusEquilibrium;
+                flowValue.innerHTML = `<span class="text-teal-400 flex items-center space-x-1">
+                    <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4"/></svg>
+                    <span>${translation.flowEquil}</span>
+                </span>`;
+                
+                // Progress indicator full
+                document.getElementById('progress-bar').style.width = "100%";
+                document.getElementById('progress-percent').innerText = "100%";
+            } else if (isRunning) {
+                statusText.innerText = translation.statusActive;
+                
+                // Show dynamic net direction
+                if (tempA > tempB) {
+                    flowValue.innerHTML = `<span class="text-orange-400 flex items-center space-x-1">
+                        <span>${translation.flowHotToCold}</span>
+                        <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                    </span>`;
+                } else {
+                    flowValue.innerHTML = `<span class="text-sky-400 flex items-center space-x-1">
+                        <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 19l-7-7 7-7M19 19l-7-7 7-7"/></svg>
+                        <span>${translation.flowColdToHot}</span>
+                    </span>`;
+                }
+
+                // Show dynamic calculation of thermal progress
+                const completionPercentage = Math.min(100, Math.floor(((initialDiff - diff) / initialDiff) * 100));
+                document.getElementById('progress-bar').style.width = `${completionPercentage}%`;
+                document.getElementById('progress-percent').innerText = `${completionPercentage}%`;
+            } else if (currentTimer > 0) {
+                statusText.innerText = translation.statusPaused;
+            } else {
+                statusText.innerText = translation.statusReady;
+                flowValue.innerText = translation.flowInitial;
+                document.getElementById('progress-bar').style.width = "0%";
+                document.getElementById('progress-percent').innerText = "0%";
+            }
+        }
+
+        // Calculate and return values
+        function getInputs() {
+            return {
+                initTempA: parseFloat(document.getElementById('slide-tempA').value),
+                initMassA: parseFloat(document.getElementById('slide-massA').value),
+                initTempB: parseFloat(document.getElementById('slide-tempB').value),
+                initMassB: parseFloat(document.getElementById('slide-massB').value)
+            };
+        }
+
+        function calculateEquilibriumTemp(ta, ma, ca, tb, mb, cb) {
+            // Formula: Tf = (m1 c1 T1 + m2 c2 T2) / (m1 c1 + m2 c2)
+            const num = (ma * ca * ta) + (mb * cb * tb);
+            const den = (ma * ca) + (mb * cb);
+            return num / den;
+        }
+
+        function updateTheoreticalCalculation() {
+            const { initTempA, initMassA, initTempB, initMassB } = getInputs();
+            const finalTemp = calculateEquilibriumTemp(initTempA, initMassA, specHeatA, initTempB, initMassB, specHeatB);
+            document.getElementById('calc-final-temp').innerText = `${finalTemp.toFixed(1)} °C`;
+        }
+
+        // Handles material modifications
+        function updateMaterials() {
+            const selectA = document.getElementById('matA').value;
+            const selectB = document.getElementById('matB').value;
+            specHeatA = materials[selectA];
+            specHeatB = materials[selectB];
+            
+            updateTheoreticalCalculation();
+            resetSim();
+        }
+
+        function handleSliderChange() {
+            // Update labels
+            const inputs = getInputs();
+            document.getElementById('val-tempA').innerText = inputs.initTempA;
+            document.getElementById('val-massA').innerText = inputs.initMassA.toFixed(1);
+            
+            document.getElementById('val-tempB').innerText = inputs.initTempB;
+            document.getElementById('val-massB').innerText = inputs.initMassB.toFixed(1);
+
+            updateTheoreticalCalculation();
+            resetSim();
+        }
+
+        // Setup the graphical layout
+        function setupChart() {
+            const chartCtx = document.getElementById('tempChart').getContext('2d');
+            
+            if (tempChartInstance) {
+                tempChartInstance.destroy();
+            }
+
+            tempChartInstance = new Chart(chartCtx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [
+                        {
+                            label: lang === 'en' ? 'Object A Temp (°C)' : 'Suhu Objek A (°C)',
+                            data: chartData.tempAHistory,
+                            borderColor: '#f97316',
+                            backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                            borderWidth: 2.5,
+                            tension: 0.15,
+                            pointRadius: 0
+                        },
+                        {
+                            label: lang === 'en' ? 'Object B Temp (°C)' : 'Suhu Objek B (°C)',
+                            data: chartData.tempBHistory,
+                            borderColor: '#38bdf8',
+                            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                            borderWidth: 2.5,
+                            tension: 0.15,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#cbd5e1',
+                                font: {
+                                    family: 'Plus Jakarta Sans',
+                                    size: 11
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                            ticks: { color: '#64748b' },
+                            title: {
+                                display: true,
+                                text: lang === 'en' ? 'Time (s)' : 'Masa (s)',
+                                color: '#94a3b8',
+                                font: { size: 10 }
+                            }
+                        },
+                        y: {
+                            min: 0,
+                            max: 100,
+                            grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                            ticks: { color: '#64748b' },
+                            title: {
+                                display: true,
+                                text: lang === 'en' ? 'Temperature (°C)' : 'Suhu (°C)',
+                                color: '#94a3b8',
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChartConfigLabels() {
+            if (!tempChartInstance) return;
+            tempChartInstance.data.datasets[0].label = lang === 'en' ? 'Object A Temp (°C)' : 'Suhu Objek A (°C)';
+            tempChartInstance.data.datasets[1].label = lang === 'en' ? 'Object B Temp (°C)' : 'Suhu Objek B (°C)';
+            tempChartInstance.options.scales.x.title.text = lang === 'en' ? 'Time (s)' : 'Masa (s)';
+            tempChartInstance.options.scales.y.title.text = lang === 'en' ? 'Temperature (°C)' : 'Suhu (°C)';
+            tempChartInstance.update();
+        }
+
+        // Draw Solid physics blocks representing heat boundaries
+        function drawBlocks() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const margin = 30;
+            const blockWidth = (canvas.width - 2 * margin) / 2;
+            const blockHeight = canvas.height - 40;
+            const yOffset = 15;
+
+            // Generate gradient fill for Block A representing its temperature state (Red-Orange range)
+            const gradientA = ctx.createLinearGradient(margin, 0, margin + blockWidth, 0);
+            const colorA = getTemperatureColor(tempA);
+            gradientA.addColorStop(0, colorA);
+            // Blend contact boundary color smoothly
+            const blendColor = getTemperatureColor((tempA + tempB) / 2);
+            gradientA.addColorStop(1, blendColor);
+
+            ctx.fillStyle = gradientA;
+            ctx.beginPath();
+            ctx.roundRect(margin, yOffset, blockWidth, blockHeight, [12, 0, 0, 12]);
+            ctx.fill();
+
+            // Generate gradient fill for Block B
+            const gradientB = ctx.createLinearGradient(margin + blockWidth, 0, margin + 2 * blockWidth, 0);
+            gradientB.addColorStop(0, blendColor);
+            gradientB.addColorStop(1, getTemperatureColor(tempB));
+
+            ctx.fillStyle = gradientB;
+            ctx.beginPath();
+            ctx.roundRect(margin + blockWidth, yOffset, blockWidth, blockHeight, [0, 12, 12, 0]);
+            ctx.fill();
+
+            // Draw clean physical border separators
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Block Labels
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 13px Plus Jakarta Sans';
+            ctx.fillText(lang === 'en' ? 'Object A' : 'Objek A', margin + 20, yOffset + 30);
+            ctx.fillText(lang === 'en' ? 'Object B' : 'Objek B', margin + blockWidth + 20, yOffset + 30);
+
+            // Print instant temperature overlays on blocks
+            ctx.font = 'bold 18px Plus Jakarta Sans';
+            ctx.fillText(`${tempA.toFixed(1)}°C`, margin + 20, yOffset + blockHeight - 20);
+            ctx.fillText(`${tempB.toFixed(1)}°C`, margin + blockWidth + 20, yOffset + blockHeight - 20);
+
+            // Draw heat flow particles
+            drawHeatFlowParticles(margin, blockWidth, blockHeight, yOffset);
+        }
+
+        // Heat maps color scale
+        function getTemperatureColor(temp) {
+            // Min blue (0, 120, 255) to Max Hot Red (255, 60, 0)
+            const r = Math.min(255, Math.max(20, Math.floor((temp / 100) * 235 + 20)));
+            const g = Math.min(255, Math.max(30, Math.floor((1 - Math.abs(temp - 50) / 50) * 150 + 30)));
+            const b = Math.min(255, Math.max(255 - Math.floor((temp / 100) * 255), 20));
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        // Visual Heat Flow Particle logic
+        function drawHeatFlowParticles(margin, blockWidth, blockHeight, yOffset) {
+            const diff = tempA - tempB;
+            const flowRate = Math.abs(diff) / 100; // Normalized flow magnitude
+            
+            // Generate active visual particles based on temperature gradient
+            if (isRunning && Math.abs(diff) > 0.05) {
+                // Determine direction
+                const directionRight = diff > 0;
+                
+                // Keep the canvas filled with particles relative to the flow rate
+                const targetParticleCount = Math.max(5, Math.floor(flowRate * 45));
+                if (heatParticles.length < targetParticleCount && Math.random() < 0.4) {
+                    heatParticles.push({
+                        x: directionRight ? margin + blockWidth / 2 : margin + 1.5 * blockWidth,
+                        y: yOffset + 20 + Math.random() * (blockHeight - 40),
+                        speed: (directionRight ? 1.5 : -1.5) * (0.5 + Math.random() * 1.5),
+                        size: 3 + Math.random() * 4,
+                        opacity: 0.8
+                    });
+                }
+            }
+
+            // Update & Draw particles
+            for (let i = heatParticles.length - 1; i >= 0; i--) {
+                const p = heatParticles[i];
+                p.x += p.speed;
+                p.opacity -= 0.005; // Fade over boundary range
+
+                // Draw heat glowing particle
+                ctx.fillStyle = `rgba(251, 146, 60, ${p.opacity})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Boundary/Lifespan clean up
+                const xLimitLeft = margin;
+                const xLimitRight = margin + 2 * blockWidth;
+                if (p.x < xLimitLeft || p.x > xLimitRight || p.opacity <= 0) {
+                    heatParticles.splice(i, 1);
+                }
+            }
+        }
+
+        // Mathematical Simulation Loop
+        function toggleSim() {
+            if (isRunning) {
+                // Pause
+                isRunning = false;
+                cancelAnimationFrame(animationId);
+            } else {
+                // Start
+                isRunning = true;
+                simulateStep();
+            }
+            updateStartButtonText();
+            updateStatusText();
+        }
+
+        function simulateStep() {
+            if (!isRunning) return;
+
+            // Thermodynamic formula calculations
+            const { initTempA, initMassA, initTempB, initMassB } = getInputs();
+            const targetTf = calculateEquilibriumTemp(initTempA, initMassA, specHeatA, initTempB, initMassB, specHeatB);
+
+            const tempDiff = tempA - tempB;
+            
+            if (Math.abs(tempDiff) > 0.05) {
+                currentTimer += 1;
+
+                // Heat flow model: dQ/dt = k * A * (T_A - T_B)
+                // K factor models the thermal contact conductivity of standard surfaces
+                const kFactor = 0.03; 
+                const heatTransferred = kFactor * tempDiff;
+
+                // Adjust individual block temperatures: dT = dQ / (m * c)
+                // Scaling by constant to ensure smooth classroom speed relative to graph size
+                const speedCoeff = 80; 
+                tempA -= (heatTransferred * speedCoeff) / (massA * specHeatA);
+                tempB += (heatTransferred * speedCoeff) / (massB * specHeatB);
+
+                // Boundary protections
+                if (initTempA > initTempB) {
+                    if (tempA < targetTf) tempA = targetTf;
+                    if (tempB > targetTf) tempB = targetTf;
+                } else {
+                    if (tempA > targetTf) tempA = targetTf;
+                    if (tempB < targetTf) tempB = targetTf;
+                }
+
+                // Append and update graphical chart
+                if (currentTimer % 3 === 0 || currentTimer === 1) {
+                    chartData.labels.push((currentTimer / 10).toFixed(1));
+                    chartData.tempAHistory.push(tempA);
+                    chartData.tempBHistory.push(tempB);
+                    tempChartInstance.update('none');
+                }
+
+                // Update real-time numeric readouts
+                document.getElementById('live-tempA').innerText = `${tempA.toFixed(1)} °C`;
+                document.getElementById('live-tempB').innerText = `${tempB.toFixed(1)} °C`;
+                
+                updateStatusText();
+                drawBlocks();
+
+                animationId = requestAnimationFrame(simulateStep);
+            } else {
+                // Finalize exactly at target values once fully converged
+                tempA = targetTf;
+                tempB = targetTf;
+                document.getElementById('live-tempA').innerText = `${tempA.toFixed(1)} °C`;
+                document.getElementById('live-tempB').innerText = `${tempB.toFixed(1)} °C`;
+                
+                isRunning = false;
+                updateStartButtonText();
+                updateStatusText();
+                drawBlocks();
+            }
+        }
+
+        function resetSim() {
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+            currentTimer = 0;
+            heatParticles = [];
+
+            const inputs = getInputs();
+            tempA = inputs.initTempA;
+            tempB = inputs.initTempB;
+            massA = inputs.initMassA;
+            massB = inputs.initMassB;
+
+            document.getElementById('live-tempA').innerText = `${tempA.toFixed(1)} °C`;
+            document.getElementById('live-tempB').innerText = `${tempB.toFixed(1)} °C`;
+
+            // Reset chart records
+            chartData.labels = ['0.0'];
+            chartData.tempAHistory = [tempA];
+            chartData.tempBHistory = [tempB];
+
+            setupChart();
+            updateStartButtonText();
+            updateStatusText();
+            drawBlocks();
+        }
+
+        // Interactive notebook functions
+        function fillDraft(step) {
+            const { initTempA, initTempB, initMassA, initMassB } = getInputs();
+            const finalTemp = calculateEquilibriumTemp(initTempA, initMassA, specHeatA, initTempB, initMassB, specHeatB).toFixed(1);
+            
+            const textarea = document.getElementById('essay-draft');
+            let textToInsert = '';
+
+            if (lang === 'en') {
+                switch(step) {
+                    case 1:
+                        textToInsert = `Object A (at initial temperature of ${initTempA}°C) is placed in thermal contact with Object B (at initial temperature of ${initTempB}°C). Because of the physical contact, thermal transfer can occur between them. `;
+                        break;
+                    case 2:
+                        textToInsert = `Heat energy is transferred simultaneously from Object A to Object B and from Object B to Object A. However, because Object A is hotter, the rate of heat flow from A to B is higher than the rate from B to A. Therefore, the net heat flow is from Object A to Object B. `;
+                        break;
+                    case 3:
+                        textToInsert = `As the heat flow continues, the temperature of Object A decreases while Object B increases. The temperature difference between the two objects gradually reduces, which causes the rate of net heat transfer to slow down. `;
+                        break;
+                    case 4:
+                        textToInsert = `Eventually, both Object A and Object B reach the same final temperature of ${finalTemp}°C. At this stage, the rate of heat flow from Object A to B equals the rate from Object B to A, meaning the net heat transfer is zero. The system is now in a state of thermal equilibrium. `;
+                        break;
+                }
+            } else {
+                switch(step) {
+                    case 1:
+                        textToInsert = `Objek A (pada suhu awal ${initTempA}°C) diletakkan dalam sentuhan termal dengan Objek B (pada suhu awal ${initTempB}°C). Disebabkan oleh sentuhan fizikal ini, pemindahan haba boleh berlaku antara kedua-dua blok tersebut. `;
+                        break;
+                    case 2:
+                        textToInsert = `Tenaga haba dipindahkan secara serentak dari Objek A ke Objek B dan dari Objek B ke Objek A. Walau bagaimanapun, disebabkan Objek A lebih panas, kadar pengaliran haba dari A ke B adalah lebih tinggi daripada kadar pengaliran dari B ke A. Oleh itu, aliran haba bersih adalah dari Objek A ke Objek B. `;
+                        break;
+                    case 3:
+                        textToInsert = `Sepanjang pemindahan haba berlaku, suhu Objek A berkurang manakala suhu Objek B meningkat. Perbezaan suhu antara kedua-dua objek berkurang secara beransur-ansur, yang menyebabkan kadar aliran haba bersih menjadi semakin perlahan. `;
+                        break;
+                    case 4:
+                        textToInsert = `Akhirnya, kedua-dua Objek A dan Objek B mencapai suhu akhir yang sama iaitu ${finalTemp}°C. Pada tahap ini, kadar pemindahan haba dari Objek A ke B adalah sama dengan kadar pemindahan dari B ke A, yang bermaksud aliran haba bersih adalah sifar. Sistem kini berada dalam keadaan keseimbangan termal. `;
+                        break;
+                }
+            }
+
+            textarea.value += textToInsert;
+            updateWordCount();
+        }
+
+        function updateWordCount() {
+            const text = document.getElementById('essay-draft').value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            document.getElementById('word-count').innerText = words;
+        }
+
+        function clearDraft() {
+            document.getElementById('essay-draft').value = '';
+            updateWordCount();
+            showToast(dict[lang].toastClear);
+        }
+
+        // Copy essay structures for students' homework / exam practice
+        function copyEssayGuide() {
+            const { initTempA, initTempB, initMassA, initMassB } = getInputs();
+            const finalTemp = calculateEquilibriumTemp(initTempA, initMassA, specHeatA, initTempB, initMassB, specHeatB).toFixed(1);
+
+            let copyText = '';
+            if (lang === 'en') {
+                copyText = `PHYSICS ASSESSMENT STUDY GUIDE: THERMAL EQUILIBRIUM
+===================================================
+Simulated Settings:
+- Object A: Initial Temp = ${initTempA}°C, Mass = ${initMassA}kg
+- Object B: Initial Temp = ${initTempB}°C, Mass = ${initMassB}kg
+- Predicted Equilibrium Temp = ${finalTemp}°C
+
+ESSAY EXPLANATION OUTLINE:
+1. Contact Stage: Object A and Object B are placed in thermal contact.
+2. Direction of Heat Flow: Heat flows in both directions simultaneously, but net heat flow goes from hotter Object A to colder Object B.
+3. Rates of Transfer: As temperature difference decreases, rate of net heat flow slows down.
+4. Equilibrium State: Eventually, both reach the same temperature (${finalTemp}°C). Net heat transfer becomes zero. Thermal equilibrium is reached.`;
+            } else {
+                copyText = `PANDUAN ESEI FIZIK: KESEIMBANGAN TERMAL
+===================================================
+Tetapan Simulasi:
+- Objek A: Suhu Awal = ${initTempA}°C, Jisim = ${initMassA}kg
+- Objek B: Suhu Awal = ${initTempB}°C, Jisim = ${initMassB}kg
+- Ramalan Suhu Keseimbangan = ${finalTemp}°C
+
+RANGKA PENJELASAN ESEI:
+1. Peringkat Sentuhan: Objek A dan Objek B diletakkan dalam sentuhan termal.
+2. Arah Aliran Haba: Haba mengalir dalam kedua-dua arah secara serentak, tetapi aliran haba bersih mengalir dari Objek A (lebih panas) ke Objek B (lebih sejuk).
+3. Kadar Pemindahan: Apabila perbezaan suhu berkurang, kadar aliran haba bersih menjadi perlahan.
+4. Keadaan Keseimbangan: Akhirnya, kedua-dua blok mencapai suhu akhir yang sama (${finalTemp}°C). Pemindahan haba bersih adalah sifar. Keseimbangan termal dicapai.`;
+            }
+
+            // Copy to clipboard fallback format
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = copyText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            showToast(dict[lang].toastCopy);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-800 border border-teal-500 text-teal-400 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2 max-w-sm pointer-events-none";
+            
+            setTimeout(() => {
+                toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-800 border border-teal-500 text-teal-400 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2 max-w-sm pointer-events-none";
+            }, 3000);
+        }
+
+        // Set live list updates on text input
+        document.getElementById('essay-draft').addEventListener('input', updateWordCount);
+
+        // Window Lifecycle Load Initialization
+        window.onload = function() {
+            resizeCanvas();
+            updateTheoreticalCalculation();
+            resetSim();
+            setLanguage('en');
+        };
+
+        window.onresize = resizeCanvas;
+    </script>
+</body>
+</html>
