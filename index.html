@@ -1,1605 +1,1188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Optics Simulator: Mirror Image Formation</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermal Equilibrium Simulator | Simulator Keseimbangan Termal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Custom scrollbar for better styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
+<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-teal-500 selection:text-slate-900 transition-colors duration-300">
 
-  <!-- TOP NAVIGATION HEADER -->
-  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40 px-4 py-3 sm:px-6">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-      <!-- Title -->
-      <div class="flex items-center gap-3">
-        <div class="p-2 bg-indigo-600/20 text-indigo-400 rounded-lg border border-indigo-500/30">
-          <i data-lucide="sparkles" class="w-6 h-6"></i>
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-gradient-to-tr from-amber-500 to-rose-600 rounded-lg shadow-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-orange-400 via-rose-400 to-teal-400 bg-clip-text text-transparent" id="nav-title">
+                        Thermal Equilibrium Simulator
+                    </h1>
+                    <p class="text-xs text-slate-400 hidden sm:block" id="nav-subtitle">Physics Education Interactive Tool</p>
+                </div>
+            </div>
+            
+            <!-- Language Toggle Buttons -->
+            <div class="flex items-center space-x-1 bg-slate-800 p-1 rounded-lg border border-slate-700">
+                <button onclick="setLanguage('en')" id="btn-en" class="px-3 py-1 text-xs font-semibold rounded transition-all duration-200 bg-teal-500 text-slate-950 shadow">
+                    English
+                </button>
+                <button onclick="setLanguage('ms')" id="btn-ms" class="px-3 py-1 text-xs font-semibold rounded transition-all duration-200 text-slate-400 hover:text-slate-100">
+                    BM
+                </button>
+            </div>
         </div>
-        <div>
-          <h1 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-            <span id="txt-title">Optics Mirror Laboratory</span>
-            <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded-full font-medium">v1.2</span>
-          </h1>
-          <p class="text-xs text-slate-400" id="txt-subtitle">Interactive Physics Ray-Tracing & Image Rules</p>
-        </div>
-      </div>
+    </header>
 
-      <!-- Controls & Language Toggle -->
-      <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-        <!-- Language Switcher Button -->
-        <button id="lang-toggle-btn" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold bg-slate-800 border border-slate-700 hover:bg-slate-700 hover:text-white transition-all text-indigo-300 shadow-sm">
-          <i data-lucide="languages" class="w-4 h-4"></i>
-          <span id="lang-label">Bahasa Melayu (BM)</span>
-        </button>
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
         
-        <!-- Info Help Modal Trigger -->
-        <button id="info-btn" class="p-2 rounded-lg bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 hover:text-white transition-all" title="Help Guide">
-          <i data-lucide="help-circle" class="w-5 h-5"></i>
-        </button>
-      </div>
+        <!-- Top Section: Overview & Goals -->
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-orange-500/10 rounded-full blur-2xl"></div>
+            <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-teal-500/10 rounded-full blur-2xl"></div>
+            
+            <div class="relative z-10">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 mb-3" id="badge-topic">
+                    Heat & Thermodynamics
+                </span>
+                <h2 class="text-2xl font-extrabold text-white" id="main-heading">Understanding Thermal Equilibrium</h2>
+                <p class="mt-2 text-sm text-slate-300 max-w-4xl leading-relaxed" id="main-desc">
+                    When two objects with different temperatures are placed in thermal contact, heat energy transfers between them. Use this tool to observe the transition, analyze the temperature curve, and use the guided prompts below to write an outstanding physics essay!
+                </p>
+            </div>
+        </div>
+
+        <!-- Middle Section: Interactive Simulator & Live Data Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Side (lg:col-span-7) - Controls and Canvas Visualizer -->
+            <div class="lg:col-span-7 space-y-6 flex flex-col justify-between">
+                
+                <!-- Controls Card -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+                    <h3 class="text-base font-bold text-slate-200 flex items-center space-x-2" id="controls-title">
+                        <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                        <span>Simulation Control & Parameters</span>
+                    </h3>
+
+                    <!-- Sliders & Material Selection Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Object A (Left/Hot/Cold) Config -->
+                        <div class="space-y-4 p-4 rounded-xl bg-slate-950/50 border border-slate-800/80">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <span class="font-bold text-orange-400 flex items-center space-x-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+                                    <span id="label-objA">Object A</span>
+                                </span>
+                                <span class="text-xs bg-orange-500/10 text-orange-400 px-2 py-0.5 rounded" id="label-initial">Initial State</span>
+                            </div>
+
+                            <!-- Material Select -->
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1" id="label-matA">Material & Specific Heat ($c$)</label>
+                                <select id="matA" onchange="updateMaterials()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-teal-500">
+                                    <option value="water">Water (c = 4200 J/kg°C)</option>
+                                    <option value="copper" selected>Copper (c = 390 J/kg°C)</option>
+                                    <option value="iron">Iron (c = 450 J/kg°C)</option>
+                                    <option value="aluminum">Aluminum (c = 900 J/kg°C)</option>
+                                </select>
+                            </div>
+
+                            <!-- Temperature Slider -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span id="label-tempA">Initial Temperature</span>
+                                    <span class="font-bold text-orange-400"><span id="val-tempA">80</span> °C</span>
+                                </div>
+                                <input type="range" id="slide-tempA" min="0" max="100" value="80" oninput="handleSliderChange()" class="w-full accent-orange-500 cursor-pointer">
+                            </div>
+
+                            <!-- Mass Slider -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span id="label-massA">Mass ($m$)</span>
+                                    <span class="font-bold text-orange-400"><span id="val-massA">1.0</span> kg</span>
+                                </div>
+                                <input type="range" id="slide-massA" min="0.1" max="5.0" step="0.1" value="1.0" oninput="handleSliderChange()" class="w-full accent-orange-500 cursor-pointer">
+                            </div>
+                        </div>
+
+                        <!-- Object B (Right/Cold/Hot) Config -->
+                        <div class="space-y-4 p-4 rounded-xl bg-slate-950/50 border border-slate-800/80">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <span class="font-bold text-sky-400 flex items-center space-x-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse"></span>
+                                    <span id="label-objB">Object B</span>
+                                </span>
+                                <span class="text-xs bg-sky-500/10 text-sky-400 px-2 py-0.5 rounded" id="label-initialB">Initial State</span>
+                            </div>
+
+                            <!-- Material Select -->
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1" id="label-matB">Material & Specific Heat ($c$)</label>
+                                <select id="matB" onchange="updateMaterials()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-teal-500">
+                                    <option value="water">Water (c = 4200 J/kg°C)</option>
+                                    <option value="copper">Copper (c = 390 J/kg°C)</option>
+                                    <option value="iron" selected>Iron (c = 450 J/kg°C)</option>
+                                    <option value="aluminum">Aluminum (c = 900 J/kg°C)</option>
+                                </select>
+                            </div>
+
+                            <!-- Temperature Slider -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span id="label-tempB">Initial Temperature</span>
+                                    <span class="font-bold text-sky-400"><span id="val-tempB">20</span> °C</span>
+                                </div>
+                                <input type="range" id="slide-tempB" min="0" max="100" value="20" oninput="handleSliderChange()" class="w-full accent-sky-500 cursor-pointer">
+                            </div>
+
+                            <!-- Mass Slider -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span id="label-massB">Mass ($m$)</span>
+                                    <span class="font-bold text-sky-400"><span id="val-massB">1.5</span> kg</span>
+                                </div>
+                                <input type="range" id="slide-massB" min="0.1" max="5.0" step="0.1" value="1.5" oninput="handleSliderChange()" class="w-full accent-sky-500 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Simulator Trigger Buttons -->
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button id="btn-start" onclick="toggleSim()" class="flex-1 min-w-[120px] bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg transition-colors duration-200 flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+                            <span id="btn-start-text">Start Simulation</span>
+                        </button>
+                        
+                        <button id="btn-reset" onclick="resetSim()" class="flex-1 min-w-[120px] bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-3 px-4 rounded-xl border border-slate-700 transition-colors duration-200 flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 15H18"/></svg>
+                            <span id="btn-reset-text">Reset</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Interactive Thermal Contact Visualizer (Canvas) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-bold text-slate-200 flex items-center space-x-2" id="visualizer-title">
+                            <svg class="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <span>Live Thermal Transfer View</span>
+                        </h3>
+                        <span id="status-indicator" class="text-xs font-semibold text-rose-400 bg-rose-500/10 px-3 py-1 rounded-full flex items-center space-x-1.5 animate-pulse">
+                            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                            <span id="status-text">Ready to transfer</span>
+                        </span>
+                    </div>
+
+                    <!-- Contact Interface Panel -->
+                    <div class="relative bg-slate-950 rounded-xl p-4 border border-slate-800 flex flex-col items-center">
+                        <!-- Canvas element representing heat transfer -->
+                        <canvas id="thermalCanvas" class="w-full max-w-lg h-44 rounded-lg bg-slate-950"></canvas>
+                        
+                        <!-- Heat Flow Arrow/Message Overlay -->
+                        <div class="mt-4 text-center w-full max-w-lg border-t border-slate-800/80 pt-3 flex flex-col items-center justify-center space-y-1">
+                            <span class="text-xs text-slate-400" id="flow-label">Net Heat Flow Status</span>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-bold tracking-wide" id="flow-status-value">No Contact Established</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Side (lg:col-span-5) - Real-time Plotting & Theoretical Values -->
+            <div class="lg:col-span-5 space-y-6 flex flex-col justify-between">
+                
+                <!-- Theory & Math Board (Dynamic Calculator) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex-1 flex flex-col justify-between space-y-4">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-200 flex items-center space-x-2 border-b border-slate-800 pb-3" id="math-title">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            <span>Theoretical Prediction Board</span>
+                        </h3>
+                        
+                        <div class="space-y-4 mt-4">
+                            <!-- Formula -->
+                            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-center">
+                                <span class="text-xs text-slate-400 block mb-1" id="label-formula">Heat Conservation Equation</span>
+                                <code class="text-xs sm:text-sm font-semibold text-teal-400">Q_lost = Q_gained &rArr; m₁c₁(T₁ - T_f) = m₂c₂(T_f - T₂)</code>
+                            </div>
+
+                            <!-- Real-time Values Display -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="p-3 bg-slate-950/40 border border-slate-800/80 rounded-xl text-center">
+                                    <span class="text-[10px] uppercase text-slate-500 block" id="card-tempA">Object A Temp</span>
+                                    <span class="text-lg font-bold text-orange-400" id="live-tempA">80.0 °C</span>
+                                </div>
+                                <div class="p-3 bg-slate-950/40 border border-slate-800/80 rounded-xl text-center">
+                                    <span class="text-[10px] uppercase text-slate-500 block" id="card-tempB">Object B Temp</span>
+                                    <span class="text-lg font-bold text-sky-400" id="live-tempB">20.0 °C</span>
+                                </div>
+                            </div>
+
+                            <!-- Final Equilibrium Target -->
+                            <div class="p-4 bg-gradient-to-r from-teal-500/10 to-blue-500/10 border border-teal-500/20 rounded-xl flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-teal-300 font-medium block" id="eq-target-label">Calculated Final Temp (T_f)</span>
+                                    <span class="text-sm text-slate-400" id="eq-target-subtitle">At equilibrium when rates unify</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-2xl font-black text-teal-400" id="calc-final-temp">--.- °C</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span id="label-progress">Thermal Equilibrium Progress</span>
+                            <span id="progress-percent" class="font-bold text-teal-400">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800">
+                            <div id="progress-bar" class="bg-gradient-to-r from-orange-500 via-rose-500 to-teal-500 h-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphical Representation Card -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex-1 flex flex-col justify-between">
+                    <h3 class="text-base font-bold text-slate-200 flex items-center space-x-2 mb-3" id="chart-title">
+                        <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                        <span>Temperature vs Time Graph</span>
+                    </h3>
+                    <div class="relative w-full h-48 sm:h-56">
+                        <canvas id="tempChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Essay Helper Component (Crucial for high school exams & assessments) -->
+        <section class="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-80 h-80 bg-teal-500/5 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="relative z-10 space-y-6">
+                <!-- Essay Section Header -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-800 pb-5 gap-4">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-teal-300 flex items-center space-x-3">
+                            <svg class="w-6 h-6 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2.5 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            <span id="essay-title">Interactive Essay Writing Guide</span>
+                        </h2>
+                        <p class="text-sm text-slate-400 mt-1" id="essay-subtitle">Draft a scientific explanation that scores high in physics papers!</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="copyEssayGuide()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2 px-4 rounded-xl border border-slate-700 transition flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                            <span id="btn-copy">Copy Guide Outline</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Essay Guide Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    <!-- Core Step 1 -->
+                    <div class="p-5 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-3">
+                        <div class="w-8 h-8 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-sm">1</div>
+                        <h4 class="font-bold text-slate-100 text-sm" id="step1-title">Thermal Contact & Temperature</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed" id="step1-desc">
+                            Explain the condition of thermal contact. Identify which block is hotter and which block is colder.
+                        </p>
+                        <div class="pt-2">
+                            <span class="block text-[10px] uppercase text-slate-500 mb-1" id="sc-label1">Sentence Starters</span>
+                            <p class="text-xs text-teal-400/90 italic cursor-pointer" onclick="fillDraft(1)" id="starter1">"Object A has a higher temperature..."</p>
+                        </div>
+                    </div>
+
+                    <!-- Core Step 2 -->
+                    <div class="p-5 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-3">
+                        <div class="w-8 h-8 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-sm">2</div>
+                        <h4 class="font-bold text-slate-100 text-sm" id="step2-title">Direction of Heat Flow</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed" id="step2-desc">
+                            Explain how heat transfer flows simultaneously in both directions, but state the direction of net heat flow.
+                        </p>
+                        <div class="pt-2">
+                            <span class="block text-[10px] uppercase text-slate-500 mb-1" id="sc-label2">Sentence Starters</span>
+                            <p class="text-xs text-teal-400/90 italic cursor-pointer" onclick="fillDraft(2)" id="starter2">"Heat is transferred simultaneously..."</p>
+                        </div>
+                    </div>
+
+                    <!-- Core Step 3 -->
+                    <div class="p-5 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-3">
+                        <div class="w-8 h-8 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-sm">3</div>
+                        <h4 class="font-bold text-slate-100 text-sm" id="step3-title">Rate of Heat Transfer</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed" id="step3-desc">
+                            Discuss how the rate of heat flow changes. As the temperature difference decreases, the net flow rate decreases.
+                        </p>
+                        <div class="pt-2">
+                            <span class="block text-[10px] uppercase text-slate-500 mb-1" id="sc-label3">Sentence Starters</span>
+                            <p class="text-xs text-teal-400/90 italic cursor-pointer" onclick="fillDraft(3)" id="starter3">"As the temperature difference..."</p>
+                        </div>
+                    </div>
+
+                    <!-- Core Step 4 -->
+                    <div class="p-5 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-3">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">4</div>
+                        <h4 class="font-bold text-slate-100 text-sm" id="step4-title">The Equilibrium State</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed" id="step4-desc">
+                            Define what happens at equilibrium: final temperatures are equal, net heat flow is zero.
+                        </p>
+                        <div class="pt-2">
+                            <span class="block text-[10px] uppercase text-slate-500 mb-1" id="sc-label4">Sentence Starters</span>
+                            <p class="text-xs text-teal-400/90 italic cursor-pointer" onclick="fillDraft(4)" id="starter4">"When thermal equilibrium is reached..."</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Custom Draft Notebook Area -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-slate-200 flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+                            <span id="notebook-title">Interactive Essay Practice Draft</span>
+                        </h3>
+                        <span class="text-xs text-slate-500" id="notebook-guide">Draft your essay live based on current simulation values</span>
+                    </div>
+                    <textarea id="essay-draft" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-500 h-40 focus:ring-1 focus:ring-teal-500" placeholder="Start typing your essay here... Click 'Sentence Starters' to paste templates directly."></textarea>
+                    
+                    <div class="flex justify-between items-center text-xs text-slate-500">
+                        <div>
+                            <span id="notebook-words">Words:</span> <span id="word-count" class="font-semibold text-slate-300">0</span>
+                        </div>
+                        <button onclick="clearDraft()" class="text-rose-400 hover:text-rose-300 font-medium hover:underline transition" id="btn-clear-draft">Clear Workspace</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom alert notification container -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-800 border border-teal-500 text-teal-400 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2 max-w-sm pointer-events-none">
+        <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span class="text-xs font-semibold" id="toast-message">Copied successfully!</span>
     </div>
-  </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="flex-grow max-w-7xl mx-auto w-full p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
-    
-    <!-- LEFT SIDE: INTERACTIVE CANVAS VISUALIZERS (Takes 7/12 cols) -->
-    <div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-4">
-      
-      <!-- Tabs for Mirror Type Selection -->
-      <div class="bg-slate-950 p-1.5 rounded-xl border border-slate-800 flex gap-2">
-        <button id="tab-plane" onclick="switchMirror('plane')" class="flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md">
-          <i data-lucide="minus" class="w-4 h-4 rotate-90 text-indigo-300"></i>
-          <span class="tab-label" data-en="Plane Mirror" data-bm="Cermin Satah">Plane Mirror</span>
-        </button>
-        <button id="tab-concave" onclick="switchMirror('concave')" class="flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
-          <i data-lucide="parentheses" class="w-4 h-4 text-emerald-400 rotate-90"></i>
-          <span class="tab-label" data-en="Concave Mirror" data-bm="Cermin Cekur">Concave Mirror</span>
-        </button>
-        <button id="tab-convex" onclick="switchMirror('convex')" class="flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
-          <i data-lucide="parentheses" class="w-4 h-4 text-amber-400"></i>
-          <span class="tab-label" data-en="Convex Mirror" data-bm="Cermin Cembung">Convex Mirror</span>
-        </button>
-      </div>
+    <!-- Simulation Script & Math Mechanics -->
+    <script>
+        // Global State Variables
+        let lang = 'en';
+        let isRunning = false;
+        let animationId = null;
+        let currentTimer = 0;
 
-      <!-- Live Physics Canvas Card -->
-      <div class="bg-slate-950 rounded-2xl border border-slate-800 flex flex-col relative overflow-hidden group shadow-lg">
+        // Physical Parameters
+        let tempA = 80;
+        let massA = 1.0;
+        let specHeatA = 390; // Copper as default
         
-        <!-- Interactive Tip Indicator -->
-        <div class="absolute top-3 left-3 bg-slate-900/95 border border-slate-700/60 rounded-lg px-3 py-1.5 text-xs text-slate-200 flex items-center gap-2 pointer-events-none z-10 shadow-sm backdrop-blur">
-          <span class="flex h-2 w-2 relative">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-          </span>
-          <span id="txt-canvas-tip">Drag the yellow tracker at the top of the object!</span>
-        </div>
+        let tempB = 20;
+        let massB = 1.5;
+        let specHeatB = 450; // Iron as default
 
-        <!-- Section Label for Ray Diagram -->
-        <div class="absolute top-3 right-3 bg-indigo-950/85 border border-indigo-500/40 rounded-lg px-3 py-1 text-xs text-indigo-200 font-semibold pointer-events-none z-10 shadow-sm backdrop-blur">
-          <span id="lbl-canvas-section-1">1. Physics Ray Diagram</span>
-        </div>
-
-        <!-- Canvas Container -->
-        <div class="w-full relative h-[280px] sm:h-[320px] bg-slate-950 cursor-crosshair border-b border-slate-800/80">
-          <canvas id="opticsCanvas" class="absolute inset-0 block w-full h-full"></canvas>
-        </div>
-
-        <!-- SECONDARY CANVAS: REALISTIC CANDLE REPRESENTATION -->
-        <div class="w-full relative h-[180px] sm:h-[220px] bg-slate-950/80 relative">
-          <!-- Section Label for Physical Scene -->
-          <div class="absolute top-3 right-3 bg-emerald-950/85 border border-emerald-500/40 rounded-lg px-3 py-1 text-xs text-emerald-200 font-semibold pointer-events-none z-10 shadow-sm backdrop-blur">
-            <span id="lbl-canvas-section-2">2. Real World Observation</span>
-          </div>
-          
-          <canvas id="realisticCanvas" class="absolute inset-0 block w-full h-full"></canvas>
-        </div>
-
-        <!-- Control Info Overlay (at bottom of canvas) -->
-        <div class="bg-slate-900 border-t border-slate-800 px-4 py-2.5 flex flex-wrap gap-4 text-xs text-slate-400 items-center justify-between">
-          <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-            <span class="flex items-center gap-1.5">
-              <span class="w-3 h-1 bg-violet-500 rounded-full inline-block"></span>
-              <span data-en="Parallel Ray" data-bm="Sinar Selari">Parallel Ray</span>
-            </span>
-            <span class="flex items-center gap-1.5">
-              <span class="w-3 h-1 bg-emerald-500 rounded-full inline-block"></span>
-              <span data-en="Focal Ray" data-bm="Sinar Fokus">Sinar Fokus</span>
-            </span>
-            <span id="ray-c-legend" class="flex items-center gap-1.5">
-              <span class="w-3 h-1 bg-amber-500 rounded-full inline-block"></span>
-              <span data-en="Radial Ray (C)" data-bm="Sinar Jejari (C)">Sinar Jejari (C)</span>
-            </span>
-          </div>
-          <button id="reset-canvas-btn" onclick="resetToDefaults()" class="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition-all">
-            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-            <span data-en="Reset View" data-bm="Set Semula">Set Semula</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- QUICK CASES / PRESET SCENARIOS -->
-      <div id="presets-container" class="bg-slate-950 p-4 rounded-xl border border-slate-800">
-        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <i data-lucide="compass" class="w-4 h-4 text-indigo-400"></i>
-          <span id="txt-presets-title">Quick Learning Scenarios (Click to test)</span>
-        </h3>
-        
-        <!-- Interactive presets grid -->
-        <div id="preset-buttons-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          <!-- Dynamic Content based on selected mirror -->
-        </div>
-      </div>
-
-    </div>
-
-    <!-- RIGHT SIDE: CONTROL PANEL & DATA READOUTS (Takes 5/12 cols) -->
-    <div class="lg:col-span-5 xl:col-span-4 flex flex-col gap-5">
-      
-      <!-- METRICS & CHARACTERISTICS BOX -->
-      <div class="bg-slate-950 rounded-2xl border border-slate-800 p-5 shadow-lg flex flex-col gap-4">
-        <h2 class="text-base font-bold text-white flex items-center gap-2 pb-3 border-b border-slate-800">
-          <i data-lucide="gauge" class="w-5 h-5 text-indigo-400"></i>
-          <span id="txt-dashboard-title">Live Physics Diagnostics</span>
-        </h2>
-
-        <!-- Calculations Table Grid -->
-        <div class="grid grid-cols-2 gap-3 text-sm">
-          <!-- Object Distance (u) -->
-          <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-            <span class="text-xs text-slate-400 block mb-0.5" id="lbl-diag-u">Object Distance (u)</span>
-            <span id="val-diag-u" class="text-base font-mono font-bold text-indigo-300">30.0 cm</span>
-          </div>
-          <!-- Image Distance (v) -->
-          <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-            <span class="text-xs text-slate-400 block mb-0.5" id="lbl-diag-v">Image Distance (v)</span>
-            <span id="val-diag-v" class="text-base font-mono font-bold text-emerald-400">30.0 cm</span>
-          </div>
-          <!-- Focal Length (f) -->
-          <div id="focal-card" class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-            <span class="text-xs text-slate-400 block mb-0.5" id="lbl-diag-f">Focal Length (f)</span>
-            <span id="val-diag-f" class="text-base font-mono font-bold text-amber-400">15.0 cm</span>
-          </div>
-          <!-- Magnification (M) -->
-          <div class="bg-slate-900 p-3 rounded-xl border border-slate-800">
-            <span class="text-xs text-slate-400 block mb-0.5" id="lbl-diag-m">Magnification (m)</span>
-            <span id="val-diag-m" class="text-base font-mono font-bold text-violet-400">1.00x</span>
-          </div>
-        </div>
-
-        <!-- IMAGE CHARACTERISTICS BOX -->
-        <div class="bg-indigo-950/40 border border-indigo-800/40 rounded-xl p-4 flex flex-col gap-2.5">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-indigo-300 uppercase tracking-wider" id="lbl-char-title">Generated Image Characteristics</span>
-            <span id="image-status-badge" class="px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wide">Perfect</span>
-          </div>
-          
-          <div class="grid grid-cols-3 gap-2 pt-1.5 text-center text-xs font-semibold">
-            <!-- Characteristic 1: Real vs Virtual -->
-            <div id="char-nature" class="py-2 px-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-200">
-              Real
-            </div>
-            <!-- Characteristic 2: Inverted vs Upright -->
-            <div id="char-orientation" class="py-2 px-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-200">
-              Inverted
-            </div>
-            <!-- Characteristic 3: Magnified vs Diminished vs Same Size -->
-            <div id="char-size" class="py-2 px-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-200">
-              Same Size
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SLIDERS CONTROLS PANEL -->
-      <div class="bg-slate-950 rounded-2xl border border-slate-800 p-5 shadow-lg flex flex-col gap-5">
-        <h2 class="text-base font-bold text-white flex items-center gap-2 pb-3 border-b border-slate-800">
-          <i data-lucide="sliders" class="w-5 h-5 text-indigo-400"></i>
-          <span id="txt-sliders-title">Laboratory Sliders</span>
-        </h2>
-
-        <!-- Slider 1: Object Distance (u) -->
-        <div class="space-y-2">
-          <div class="flex items-center justify-between text-sm">
-            <span class="font-medium text-slate-300" id="lbl-slider-u">Object Distance (u)</span>
-            <span id="val-slider-u" class="font-mono font-semibold text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20">30.0 cm</span>
-          </div>
-          <input type="range" id="input-u" min="1" max="150" value="30" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
-          <div class="flex justify-between text-[10px] text-slate-500">
-            <span>1 cm</span>
-            <span>75 cm</span>
-            <span>150 cm</span>
-          </div>
-        </div>
-
-        <!-- Slider 2: Object Height (h) -->
-        <div class="space-y-2">
-          <div class="flex items-center justify-between text-sm">
-            <span class="font-medium text-slate-300" id="lbl-slider-h">Object Height (h)</span>
-            <span id="val-slider-h" class="font-mono font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">10.0 cm</span>
-          </div>
-          <input type="range" id="input-h" min="5" max="50" value="15" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-emerald-500">
-          <div class="flex justify-between text-[10px] text-slate-500">
-            <span>5 cm</span>
-            <span>25 cm</span>
-            <span>50 cm</span>
-          </div>
-        </div>
-
-        <!-- Slider 3: Focal Length (f) - Shown only for Spherical Mirrors -->
-        <div id="focal-slider-container" class="space-y-2">
-          <div class="flex items-center justify-between text-sm">
-            <span class="font-medium text-slate-300" id="lbl-slider-f">Focal Length (f)</span>
-            <span id="val-slider-f" class="font-mono font-semibold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">15.0 cm</span>
-          </div>
-          <input type="range" id="input-f" min="5" max="45" value="15" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
-          <div class="flex justify-between text-[10px] text-slate-500">
-            <span>5 cm</span>
-            <span>25 cm</span>
-            <span>45 cm</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </main>
-
-  <!-- INFO & USER MANUAL HELP DIALOG MODAL -->
-  <div id="info-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 max-w-lg w-full rounded-2xl shadow-2xl p-6 relative flex flex-col gap-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-      <button id="close-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-100 transition-colors p-1.5 rounded-lg hover:bg-slate-800">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-
-      <div class="flex items-center gap-2.5 border-b border-slate-800 pb-3">
-        <i data-lucide="book-open" class="text-indigo-400 w-6 h-6"></i>
-        <h2 id="modal-title" class="text-lg font-bold text-white">How Image Formation Works</h2>
-      </div>
-
-      <div class="space-y-4 text-sm text-slate-300 leading-relaxed">
-        <p id="modal-p1">This simulator represents mirror optical mechanics. In school syllabi (both KSSM Malaysia and universal physics curriculums), mirror formulas dictate exactly where images are created:</p>
-        
-        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3 font-mono text-xs text-indigo-300">
-          <div>
-            <strong>Mirror Formula / Formula Cermin:</strong><br>
-            <span class="text-white text-sm">1/f = 1/u + 1/v</span>
-          </div>
-          <div>
-            <strong>Magnification / Pembesaran Linear:</strong><br>
-            <span class="text-white text-sm">m = |v / u| = |h_i / h_o|</span>
-          </div>
-        </div>
-
-        <h3 class="font-bold text-white" id="modal-p2">Light Ray Reference Rules:</h3>
-        <ul class="space-y-2.5 list-none pl-1">
-          <li class="flex items-start gap-2.5">
-            <span class="w-2 h-2 rounded-full bg-violet-500 mt-1.5 shrink-0"></span>
-            <div>
-              <strong id="modal-ray-1">Parallel Ray:</strong>
-              <span id="modal-ray-1-desc">Travels parallel to the principal axis, reflecting directly through the focal point (F).</span>
-            </div>
-          </li>
-          <li class="flex items-start gap-2.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0"></span>
-            <div>
-              <strong id="modal-ray-2">Focal Ray:</strong>
-              <span id="modal-ray-2-desc">Travels directly through the focal point (F) and reflects parallel to the principal axis.</span>
-            </div>
-          </li>
-          <li id="modal-ray-3-li" class="flex items-start gap-2.5">
-            <span class="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0"></span>
-            <div>
-              <strong id="modal-ray-3">Radial Ray:</strong>
-              <span id="modal-ray-3-desc">Passes through the Center of Curvature (C) and reflects directly back along its original path.</span>
-            </div>
-          </li>
-        </ul>
-
-        <div class="bg-amber-500/10 border border-amber-500/20 text-amber-200 p-3 rounded-lg text-xs" id="modal-drag-info">
-          💡 <strong>Tip:</strong> Simply hover and drag the circular yellow tracker at the top of the object arrow inside the virtual laboratory canvas to interact dynamically!
-        </div>
-      </div>
-      
-      <div class="border-t border-slate-800 pt-3 flex justify-end">
-        <button id="modal-ok-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-5 py-2 rounded-xl transition-all shadow-md">
-          Great, let's explore!
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- BOTTOM FOOTER -->
-  <footer class="border-t border-slate-800 bg-slate-950 py-4 px-6 text-center text-xs text-slate-500 mt-auto">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-      <p id="txt-footer-author">Designed for Physics & Optics Classrooms. Free to use.</p>
-      <p>&copy; 2026 Physics Visualizer Lab. All rights reserved.</p>
-    </div>
-  </footer>
-
-  <!-- CORE SIMULATOR LOGIC SCRIPT -->
-  <script>
-    // Dictionary for Multilingual Toggle (EN <-> BM)
-    const dict = {
-      en: {
-        title: "Optics Mirror Laboratory",
-        subtitle: "Interactive Physics Ray-Tracing & Image Rules",
-        langLabel: "Bahasa Melayu (BM)",
-        canvasTip: "Drag the yellow tracker at the top of the object!",
-        diagTitle: "Live Physics Diagnostics",
-        diagU: "Object Distance (u)",
-        diagV: "Image Distance (v)",
-        diagF: "Focal Length (f)",
-        diagM: "Magnification (m)",
-        charTitle: "Image Characteristics",
-        natureReal: "Real / Nyata",
-        natureVirtual: "Virtual / Maya",
-        natureNoImage: "At Infinity / Infiniti",
-        orientUpright: "Upright / Tegak",
-        orientInverted: "Inverted / Songsang",
-        orientNone: "No Orientation / Tiada",
-        sizeMagnified: "Magnified / Diperbesar",
-        sizeDiminished: "Diminished / Diperkecil",
-        sizeSame: "Same Size / Sama Saiz",
-        sizeNone: "No Size / Tiada",
-        statusPerfect: "Perfect",
-        statusInfinity: "Infinite / No Image",
-        slidersTitle: "Laboratory Sliders",
-        sliderU: "Object Distance (u)",
-        sliderH: "Object Height (h)",
-        sliderF: "Focal Length (f)",
-        presetsTitle: "Quick Learning Scenarios (Click to test)",
-        modalTitle: "How Image Formation Works",
-        modalP1: "This simulator models light reflecting off mirrors. High school syllabi (e.g., KSSM Physics) utilize the mirror formulas to map real objects to physical or virtual images:",
-        modalP2: "Ray Diagram Rules:",
-        modalRay1: "Parallel Ray:",
-        modalRay1Desc: "Travels parallel to principal axis, reflecting through focal point (F).",
-        modalRay2: "Focal Ray:",
-        modalRay2Desc: "Passes through/towards focal point (F), reflecting parallel to principal axis.",
-        modalRay3: "Radial Ray:",
-        modalRay3Desc: "Passes through/towards center of curvature (C), reflecting back on itself.",
-        modalDragInfo: "💡 Tip: Drag the bright circular control point on the tip of the object arrow directly on screen to adjust instantly!",
-        modalOk: "Great, let's explore!",
-        footerAuthor: "Interactive Physics Classrooms • Dual-Language Simulation",
-        infinityLabel: "∞ (Infinity)",
-        presetPlaneLabel: "Normal Object",
-        presetConcaveF1: "Object at F (Parallel Rays)",
-        presetConcaveF2: "u < F (Virtual & Upright)",
-        presetConcaveF3: "u > 2F (Diminished, Real)",
-        presetConcaveF4: "u = 2F (Same Size, Real)",
-        presetConvexF1: "Far Object (Diminished)",
-        presetConvexF2: "Close Object (Virtual)",
-        sec1Title: "1. Physics Ray Diagram",
-        sec2Title: "2. Real World Observation",
-        candleObj: "CANDLE OBJECT",
-        candleImg: "CANDLE IMAGE",
-        planeObj: "PENCIL OBJECT",
-        planeImg: "PENCIL IMAGE"
-      },
-      bm: {
-        title: "Makmal Optik Cermin",
-        subtitle: "Sinar Gambar Rajah & Hukum Fizik Interaktif",
-        langLabel: "English (EN)",
-        canvasTip: "Seret penjejak kuning pada hujung anak panah objek!",
-        diagTitle: "Diagnostik Fizik Langsung",
-        diagU: "Jarak Objek (u)",
-        diagV: "Jarak Imej (v)",
-        diagF: "Panjang Fokus (f)",
-        diagM: "Pembesaran (m)",
-        charTitle: "Ciri-ciri Imej Terbina",
-        natureReal: "Nyata",
-        natureVirtual: "Maya",
-        natureNoImage: "Di Infiniti",
-        orientUpright: "Tegak",
-        orientInverted: "Songsang",
-        orientNone: "Tiada Orientasi",
-        sizeMagnified: "Diperbesar",
-        sizeDiminished: "Diperkecil",
-        sizeSame: "Sama Saiz",
-        sizeNone: "Tiada Saiz",
-        statusPerfect: "Sempurna",
-        statusInfinity: "Infiniti / Tiada Imej",
-        slidersTitle: "Pelaras Makmal",
-        sliderU: "Jarak Objek (u)",
-        sliderH: "Tinggi Objek (h)",
-        sliderF: "Panjang Fokus (f)",
-        presetsTitle: "Senario Pembelajaran Pantas (Klik untuk uji)",
-        modalTitle: "Bagaimana Imej Terbentuk",
-        modalP1: "Simulasi ini memodelkan mekanik pantulan cahaya cermin. Silibus sekolah menengah (cth: Fizik KSSM) menggunakan formula cermin untuk mengira kedudukan objek dan imej:",
-        modalP2: "Aturan Rajah Sinar:",
-        modalRay1: "Sinar Selari:",
-        modalRay1Desc: "Bergerak selari dengan paksi utama, lalu dipantulkan melalui titik fokus (F).",
-        modalRay2: "Sinar Fokus:",
-        modalRay2Desc: "Lalu melalui titik fokus (F), dipantulkan selari dengan paksi utama.",
-        modalRay3: "Sinar Jejari:",
-        modalRay3Desc: "Lalu melalui pusat kelengkungan (C), dipantulkan kembali pada laluan asal.",
-        modalDragInfo: "💡 Petua: Seret butang kawalan kuning cerah pada hujung objek di atas kanvas untuk pelarasan segera!",
-        modalOk: "Faham, jom cuba!",
-        footerAuthor: "Kegunaan Bilik Darjah Fizik • Simulasi Dwibahasa",
-        infinityLabel: "∞ (Infiniti)",
-        presetPlaneLabel: "Objek Biasa",
-        presetConcaveF1: "Objek pada F (Sinar Selari)",
-        presetConcaveF2: "u < F (Maya & Tegak)",
-        presetConcaveF3: "u > 2F (Kecil, Nyata)",
-        presetConcaveF4: "u = 2F (Sama Saiz, Nyata)",
-        presetConvexF1: "Objek Jauh (Kecil)",
-        presetConvexF2: "Objek Dekat (Maya)",
-        sec1Title: "1. Rajah Sinar Fizik",
-        sec2Title: "2. Pemerhatian Dunia Sebenar",
-        candleObj: "LILIN OBJEK",
-        candleImg: "IMEJ LILIN",
-        planeObj: "PENSIL OBJEK",
-        planeImg: "IMEJ PENSIL"
-      }
-    };
-
-    // State Variables
-    let currentLanguage = 'en';
-    let currentMirror = 'concave'; // Options: 'plane', 'concave', 'convex'
-    
-    // Physics parameters (Values in real centimeter scale)
-    let paramU = 35.0;  // Object Distance
-    let paramH = 15.0;  // Object Height
-    let paramF = 15.0;  // Focal length (strictly positive in state; math shifts sign based on concave/convex)
-    
-    // Canvas mouse/touch drag state
-    let isDragging = false;
-
-    // Elements Selectors
-    const canvas = document.getElementById('opticsCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    const realCanvas = document.getElementById('realisticCanvas');
-    const realCtx = realCanvas.getContext('2d');
-    
-    // Controls
-    const inputU = document.getElementById('input-u');
-    const inputH = document.getElementById('input-h');
-    const inputF = document.getElementById('input-f');
-    
-    const valSliderU = document.getElementById('val-slider-u');
-    const valSliderH = document.getElementById('val-slider-h');
-    const valSliderF = document.getElementById('val-slider-f');
-
-    // Indicators
-    const valDiagU = document.getElementById('val-diag-u');
-    const valDiagV = document.getElementById('val-diag-v');
-    const valDiagF = document.getElementById('val-diag-f');
-    const valDiagM = document.getElementById('val-diag-m');
-
-    const charNature = document.getElementById('char-nature');
-    const charOrientation = document.getElementById('char-orientation');
-    const charSize = document.getElementById('char-size');
-    const imageStatusBadge = document.getElementById('image-status-badge');
-
-    // Initialization
-    window.addEventListener('load', () => {
-      // Setup Lucide icons
-      lucide.createIcons();
-      
-      // Setup responsive canvas
-      resizeCanvas();
-      window.addEventListener('resize', () => {
-        resizeCanvas();
-        drawAllSimulations();
-      });
-
-      // Slider Listeners
-      inputU.addEventListener('input', (e) => {
-        paramU = parseFloat(e.target.value);
-        updateUI();
-        drawAllSimulations();
-      });
-      inputH.addEventListener('input', (e) => {
-        paramH = parseFloat(e.target.value);
-        updateUI();
-        drawAllSimulations();
-      });
-      inputF.addEventListener('input', (e) => {
-        paramF = parseFloat(e.target.value);
-        updateUI();
-        drawAllSimulations();
-      });
-
-      // Canvas Drag Listeners (Touch Friendly!)
-      canvas.addEventListener('mousedown', handleDragStart);
-      canvas.addEventListener('mousemove', handleDragMove);
-      canvas.addEventListener('mouseup', handleDragEnd);
-      canvas.addEventListener('mouseleave', handleDragEnd);
-
-      canvas.addEventListener('touchstart', (e) => {
-        const touch = e.touches[0];
-        const mouseEvent = new MouseEvent("mousedown", {
-          clientX: touch.clientX,
-          clientY: touch.clientY
-        });
-        canvas.dispatchEvent(mouseEvent);
-        e.preventDefault();
-      }, { passive: false });
-
-      canvas.addEventListener('touchmove', (e) => {
-        const touch = e.touches[0];
-        const mouseEvent = new MouseEvent("mousemove", {
-          clientX: touch.clientX,
-          clientY: touch.clientY
-        });
-        canvas.dispatchEvent(mouseEvent);
-        e.preventDefault();
-      }, { passive: false });
-
-      canvas.addEventListener('touchend', (e) => {
-        const mouseEvent = new MouseEvent("mouseup", {});
-        canvas.dispatchEvent(mouseEvent);
-      }, { passive: false });
-
-      // Language Switcher Trigger
-      document.getElementById('lang-toggle-btn').addEventListener('click', toggleLanguage);
-
-      // Info Modal Actions
-      const modal = document.getElementById('info-modal');
-      document.getElementById('info-btn').addEventListener('click', () => modal.classList.replace('hidden', 'flex'));
-      document.getElementById('close-modal-btn').addEventListener('click', () => modal.classList.replace('flex', 'hidden'));
-      document.getElementById('modal-ok-btn').addEventListener('click', () => modal.classList.replace('flex', 'hidden'));
-
-      // Set default parameters & generate initial view
-      resetToDefaults();
-      
-      // Flame animation ticker
-      let flameTicker = 0;
-      function tickFlame() {
-        flameTicker++;
-        drawRealisticObservation(flameTicker);
-        requestAnimationFrame(tickFlame);
-      }
-      tickFlame();
-    });
-
-    // Make both canvases sharp & dynamic based on device screen
-    function resizeCanvas() {
-      const dpr = window.devicePixelRatio || 1;
-      
-      // Ray Canvas
-      const rect = canvas.parentElement.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
-      ctx.scale(dpr, dpr);
-
-      // Realistic Canvas
-      const realRect = realCanvas.parentElement.getBoundingClientRect();
-      realCanvas.width = realRect.width * dpr;
-      realCanvas.height = realRect.height * dpr;
-      realCanvas.style.width = `${realRect.width}px`;
-      realCanvas.style.height = `${realRect.height}px`;
-      realCtx.scale(dpr, dpr);
-    }
-
-    // Toggle between English and Bahasa Melayu
-    function toggleLanguage() {
-      currentLanguage = currentLanguage === 'en' ? 'bm' : 'en';
-      
-      // Update toggle button text
-      const nextLang = currentLanguage === 'en' ? 'Bahasa Melayu (BM)' : 'English (EN)';
-      document.getElementById('lang-label').innerText = nextLang;
-
-      // Update static UI Elements
-      document.getElementById('txt-title').innerText = dict[currentLanguage].title;
-      document.getElementById('txt-subtitle').innerText = dict[currentLanguage].subtitle;
-      document.getElementById('txt-canvas-tip').innerText = dict[currentLanguage].canvasTip;
-      document.getElementById('txt-dashboard-title').innerText = dict[currentLanguage].diagTitle;
-      
-      document.getElementById('lbl-diag-u').innerText = dict[currentLanguage].diagU;
-      document.getElementById('lbl-diag-v').innerText = dict[currentLanguage].diagV;
-      document.getElementById('lbl-diag-f').innerText = dict[currentLanguage].diagF;
-      document.getElementById('lbl-diag-m').innerText = dict[currentLanguage].diagM;
-      document.getElementById('lbl-char-title').innerText = dict[currentLanguage].charTitle;
-
-      document.getElementById('txt-sliders-title').innerText = dict[currentLanguage].slidersTitle;
-      document.getElementById('lbl-slider-u').innerText = dict[currentLanguage].sliderU;
-      document.getElementById('lbl-slider-h').innerText = dict[currentLanguage].sliderH;
-      document.getElementById('lbl-slider-f').innerText = dict[currentLanguage].sliderF;
-      document.getElementById('txt-presets-title').innerText = dict[currentLanguage].presetsTitle;
-
-      document.getElementById('lbl-canvas-section-1').innerText = dict[currentLanguage].sec1Title;
-      document.getElementById('lbl-canvas-section-2').innerText = dict[currentLanguage].sec2Title;
-
-      // Modal translations
-      document.getElementById('modal-title').innerText = dict[currentLanguage].modalTitle;
-      document.getElementById('modal-p1').innerText = dict[currentLanguage].modalP1;
-      document.getElementById('modal-p2').innerText = dict[currentLanguage].modalP2;
-      document.getElementById('modal-ray-1').innerText = dict[currentLanguage].modalRay1;
-      document.getElementById('modal-ray-1-desc').innerText = dict[currentLanguage].modalRay1Desc;
-      document.getElementById('modal-ray-2').innerText = dict[currentLanguage].modalRay2;
-      document.getElementById('modal-ray-2-desc').innerText = dict[currentLanguage].modalRay2Desc;
-      document.getElementById('modal-ray-3').innerText = dict[currentLanguage].modalRay3;
-      document.getElementById('modal-ray-3-desc').innerText = dict[currentLanguage].modalRay3Desc;
-      document.getElementById('modal-drag-info').innerHTML = dict[currentLanguage].modalDragInfo;
-      document.getElementById('modal-ok-btn').innerText = dict[currentLanguage].modalOk;
-      document.getElementById('txt-footer-author').innerText = dict[currentLanguage].footerAuthor;
-
-      // Update Tab button labels
-      const tabLabels = document.querySelectorAll('.tab-label');
-      tabLabels.forEach(label => {
-        const en = label.getAttribute('data-en');
-        const bm = label.getAttribute('data-bm');
-        label.innerText = currentLanguage === 'en' ? en : bm;
-      });
-
-      // Update presets with updated text
-      populatePresets();
-      updateUI();
-      drawAllSimulations();
-    }
-
-    // Default Physics setup per mirror type
-    function resetToDefaults() {
-      if (currentMirror === 'plane') {
-        paramU = 40.0;
-        paramH = 15.0;
-        paramF = 15.0; // dummy
-        inputF.disabled = true;
-        document.getElementById('focal-slider-container').style.opacity = '0.4';
-        document.getElementById('focal-card').style.opacity = '0.4';
-      } else if (currentMirror === 'concave') {
-        paramU = 35.0;
-        paramH = 15.0;
-        paramF = 15.0;
-        inputF.disabled = false;
-        document.getElementById('focal-slider-container').style.opacity = '1.0';
-        document.getElementById('focal-card').style.opacity = '1.0';
-      } else {
-        paramU = 25.0;
-        paramH = 15.0;
-        paramF = 15.0;
-        inputF.disabled = false;
-        document.getElementById('focal-slider-container').style.opacity = '1.0';
-        document.getElementById('focal-card').style.opacity = '1.0';
-      }
-
-      // Sync ranges
-      inputU.value = paramU;
-      inputH.value = paramH;
-      inputF.value = paramF;
-
-      populatePresets();
-      updateUI();
-      drawAllSimulations();
-    }
-
-    // Tab switcher between Mirror Configurations
-    function switchMirror(type) {
-      currentMirror = type;
-      
-      // Update Tab Styles
-      const tabs = ['plane', 'concave', 'convex'];
-      tabs.forEach(t => {
-        const btn = document.getElementById(`tab-${t}`);
-        if (t === type) {
-          btn.className = "flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md";
-        } else {
-          btn.className = "flex-1 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50";
-        }
-      });
-
-      // Legend changes: Hide radial ray legend on plane mirror
-      const rayCLegend = document.getElementById('ray-c-legend');
-      const rayCModalLi = document.getElementById('modal-ray-3-li');
-      if (type === 'plane') {
-        rayCLegend.style.display = 'none';
-        rayCModalLi.style.display = 'none';
-      } else {
-        rayCLegend.style.display = 'flex';
-        rayCModalLi.style.display = 'flex';
-      }
-
-      resetToDefaults();
-    }
-
-    // Populate Dynamic Learning Scenarios/Presets
-    function populatePresets() {
-      const grid = document.getElementById('preset-buttons-grid');
-      grid.innerHTML = ''; // Clear
-
-      let scenarios = [];
-      const isEn = currentLanguage === 'en';
-
-      if (currentMirror === 'plane') {
-        scenarios = [
-          { name: isEn ? "Standard Object" : "Objek Standard", u: 40, h: 15, f: 15 },
-          { name: isEn ? "Far Away" : "Objek Jauh", u: 80, h: 15, f: 15 },
-          { name: isEn ? "Small Object" : "Objek Kecil", u: 30, h: 5, f: 15 }
-        ];
-      } else if (currentMirror === 'concave') {
-        scenarios = [
-          { name: isEn ? "u > 2f (Diminished)" : "u > 2f (Diperkecil)", u: 40, h: 12, f: 15 },
-          { name: isEn ? "u = 2f (Same Size)" : "u = 2f (Sama Saiz)", u: 30, h: 12, f: 15 },
-          { name: isEn ? "f < u < 2f (Magnified)" : "f < u < 2f (Diperbesar)", u: 22, h: 10, f: 15 },
-          { name: isEn ? "u = f (At Infinity)" : "u = f (Di Infiniti)", u: 15, h: 12, f: 15 },
-          { name: isEn ? "u < f (Virtual/Tegak)" : "u < f (Maya/Tegak)", u: 8, h: 12, f: 15 }
-        ];
-      } else {
-        // Convex
-        scenarios = [
-          { name: isEn ? "Far Object" : "Objek Jauh", u: 55, h: 15, f: 20 },
-          { name: isEn ? "Mid Distance" : "Jarak Sederhana", u: 30, h: 15, f: 20 },
-          { name: isEn ? "Extremely Close" : "Sangat Dekat", u: 10, h: 15, f: 20 }
-        ];
-      }
-
-      scenarios.forEach(sc => {
-        const btn = document.createElement('button');
-        btn.className = "text-xs font-semibold px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-indigo-500/50 transition-all text-center";
-        btn.innerText = sc.name;
-        btn.onclick = () => {
-          paramU = sc.u;
-          paramH = sc.h;
-          paramF = sc.f;
-          
-          inputU.value = paramU;
-          inputH.value = paramH;
-          inputF.value = paramF;
-          
-          updateUI();
-          drawAllSimulations();
+        // Material Constants (Specific Heat Capacity J/kg°C)
+        const materials = {
+            water: 4200,
+            copper: 390,
+            iron: 450,
+            aluminum: 900
         };
-        grid.appendChild(btn);
-      });
-    }
 
-    // Coordinate Math helpers
-    // Let 1cm = 4.5 pixels for unified scaling
-    const SCALE = 4.5; 
+        // Graph data
+        let chartData = {
+            labels: [],
+            tempAHistory: [],
+            tempBHistory: []
+        };
+        let tempChartInstance = null;
 
-    function getCanvasCoords(targetCanvas) {
-      const w = targetCanvas.width / (window.devicePixelRatio || 1);
-      const h = targetCanvas.height / (window.devicePixelRatio || 1);
+        // Particle dynamics for visualizer
+        const canvas = document.getElementById('thermalCanvas');
+        const ctx = canvas.getContext('2d');
+        let heatParticles = [];
 
-      let mirrorX = w * 0.55;
-      if (currentMirror === 'plane') {
-        mirrorX = w * 0.5;
-      }
-      
-      // Align central axis vertically for consistency
-      const axisY = h * 0.55; 
-      return { w, h, mirrorX, axisY };
-    }
-
-    // Physics Engine formulas for diagnostics & ray coordinates
-    function runPhysics() {
-      let u = paramU;
-      let h_o = paramH;
-      let f = paramF;
-      
-      let v = 0;
-      let m = 1;
-      let h_i = 0;
-      let nature = '';
-      let orientation = '';
-      let size = '';
-      let isInfinite = false;
-
-      if (currentMirror === 'plane') {
-        v = -u; 
-        m = 1.0;
-        h_i = h_o;
-        nature = dict[currentLanguage].natureVirtual;
-        orientation = dict[currentLanguage].orientUpright;
-        size = dict[currentLanguage].sizeSame;
-      } else if (currentMirror === 'concave') {
-        if (Math.abs(u - f) < 0.05) {
-          isInfinite = true;
-          v = Infinity;
-          m = Infinity;
-          h_i = Infinity;
-          nature = dict[currentLanguage].natureNoImage;
-          orientation = dict[currentLanguage].orientNone;
-          size = dict[currentLanguage].sizeNone;
-        } else {
-          v = (u * f) / (u - f);
-          m = Math.abs(v / u);
-          h_i = m * h_o;
-          
-          if (v > 0) {
-            nature = dict[currentLanguage].natureReal;
-            orientation = dict[currentLanguage].orientInverted;
-          } else {
-            nature = dict[currentLanguage].natureVirtual;
-            orientation = dict[currentLanguage].orientUpright;
-          }
-
-          if (Math.abs(m - 1.0) < 0.02) {
-            size = dict[currentLanguage].sizeSame;
-          } else if (m > 1.0) {
-            size = dict[currentLanguage].sizeMagnified;
-          } else {
-            size = dict[currentLanguage].sizeDiminished;
-          }
-        }
-      } else if (currentMirror === 'convex') {
-        const virtualF = -f;
-        v = (u * virtualF) / (u - virtualF);
-        m = Math.abs(v / u);
-        h_i = m * h_o;
-        nature = dict[currentLanguage].natureVirtual;
-        orientation = dict[currentLanguage].orientUpright;
-
-        if (Math.abs(m - 1.0) < 0.02) {
-          size = dict[currentLanguage].sizeSame;
-        } else if (m > 1.0) {
-          size = dict[currentLanguage].sizeMagnified;
-        } else {
-          size = dict[currentLanguage].sizeDiminished;
-        }
-      }
-
-      return { u, h_o, f, v, m, h_i, nature, orientation, size, isInfinite };
-    }
-
-    // Refresh UI readout labels & values
-    function updateUI() {
-      const res = runPhysics();
-
-      // Update Slider numeric feedback tags
-      valSliderU.innerText = `${res.u.toFixed(1)} cm`;
-      valSliderH.innerText = `${res.h_o.toFixed(1)} cm`;
-      valSliderF.innerText = `${res.f.toFixed(1)} cm`;
-
-      // Update Diagnostics Display
-      valDiagU.innerText = `${res.u.toFixed(1)} cm`;
-      
-      if (res.isInfinite) {
-        valDiagV.innerText = dict[currentLanguage].infinityLabel;
-        valDiagM.innerText = dict[currentLanguage].infinityLabel;
-        imageStatusBadge.className = "px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wide";
-        imageStatusBadge.innerText = dict[currentLanguage].statusInfinity;
-      } else {
-        valDiagV.innerText = `${res.v.toFixed(1)} cm`;
-        valDiagM.innerText = `${res.m.toFixed(2)}x`;
-        imageStatusBadge.className = "px-2 py-0.5 text-[10px] font-extrabold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wide";
-        imageStatusBadge.innerText = dict[currentLanguage].statusPerfect;
-      }
-
-      valDiagF.innerText = currentMirror === 'plane' ? '-' : `${res.f.toFixed(1)} cm`;
-
-      // Update Characteristics Cards
-      charNature.innerText = res.nature;
-      charOrientation.innerText = res.orientation;
-      charSize.innerText = res.size;
-
-      // Color coding status badges based on values
-      if (res.nature.includes("Real") || res.nature.includes("Nyata")) {
-        charNature.className = "py-2 px-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-center";
-      } else if (res.nature.includes("Virtual") || res.nature.includes("Maya")) {
-        charNature.className = "py-2 px-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-center";
-      } else {
-        charNature.className = "py-2 px-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 text-center";
-      }
-
-      if (res.orientation.includes("Upright") || res.orientation.includes("Tegak")) {
-        charOrientation.className = "py-2 px-1 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-300 text-center";
-      } else if (res.orientation.includes("Inverted") || res.orientation.includes("Songsang")) {
-        charOrientation.className = "py-2 px-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-center";
-      } else {
-        charOrientation.className = "py-2 px-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 text-center";
-      }
-
-      if (res.size.includes("Magnified") || res.size.includes("Diperbesar")) {
-        charSize.className = "py-2 px-1 rounded-lg bg-violet-500/10 border border-violet-500/20 text-violet-300 text-center";
-      } else if (res.size.includes("Diminished") || res.size.includes("Diperkecil")) {
-        charSize.className = "py-2 px-1 rounded-lg bg-teal-500/10 border border-teal-500/20 text-teal-300 text-center";
-      } else {
-        charSize.className = "py-2 px-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 text-center";
-      }
-    }
-
-    // Helper trigger to redraw both ray diagram and realistic candles
-    function drawAllSimulations() {
-      drawSimulation();
-      drawRealisticObservation(0);
-    }
-
-    // Ray Diagram Plotting & HTML Canvas Rendering
-    function drawSimulation() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      const { w, h, mirrorX, axisY } = getCanvasCoords(canvas);
-      const res = runPhysics();
-
-      // Convert dimensions to Pixels
-      const objPxX = mirrorX - (res.u * SCALE);
-      const objPxY = axisY - (res.h_o * SCALE);
-
-      // 1. Draw Grid Lines behind everything
-      drawGrid(ctx, w, h, mirrorX, axisY);
-
-      // 2. Draw Principal axis
-      ctx.beginPath();
-      ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([]);
-      ctx.moveTo(0, axisY);
-      ctx.lineTo(w, axisY);
-      ctx.stroke();
-
-      // 3. Draw Mirror curvature surface
-      drawMirrorStructure(ctx, mirrorX, axisY, h);
-
-      // 4. Draw Anchor Points: F (Focal) & C (Curvature Center)
-      if (currentMirror !== 'plane') {
-        const fDist = res.f * SCALE;
-        const cDist = 2 * res.f * SCALE;
-
-        let fX, cX;
-        if (currentMirror === 'concave') {
-          fX = mirrorX - fDist;
-          cX = mirrorX - cDist;
-        } else {
-          // Convex
-          fX = mirrorX + fDist;
-          cX = mirrorX + cDist;
+        // Setup resize handling for visualizer Canvas
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = 176; // Maintain explicit h-44 in scale
+            drawBlocks();
         }
 
-        // Focal Point F
-        drawPoint(ctx, fX, axisY, '#f59e0b', 'F');
-        // Center of Curvature C
-        drawPoint(ctx, cX, axisY, '#3b82f6', 'C');
-      }
+        // Dictionary of Texts
+        const dict = {
+            en: {
+                navTitle: "Thermal Equilibrium Simulator",
+                navSubtitle: "Physics Education Interactive Tool",
+                badgeTopic: "Heat & Thermodynamics",
+                mainHeading: "Thermal Equilibrium Visualizer",
+                mainDesc: "When two objects with different temperatures are placed in thermal contact, heat energy transfers between them. Use this tool to observe the transition, analyze the temperature curve, and use the guided prompts below to write an outstanding physics essay!",
+                controlsTitle: "Simulation Control & Parameters",
+                labelObjA: "Object A (Left)",
+                labelObjB: "Object B (Right)",
+                labelInitial: "Initial State",
+                labelInitialB: "Initial State",
+                labelMatA: "Material & Specific Heat (c)",
+                labelMatB: "Material & Specific Heat (c)",
+                labelTempA: "Initial Temperature",
+                labelTempB: "Initial Temperature",
+                labelMassA: "Mass (m)",
+                labelMassB: "Mass (m)",
+                btnStart: "Start Simulation",
+                btnPause: "Pause",
+                btnReset: "Reset",
+                visualizerTitle: "Live Thermal Transfer View",
+                statusReady: "Ready to transfer",
+                statusActive: "Heat transferring...",
+                statusEquilibrium: "Thermal Equilibrium reached!",
+                statusPaused: "Simulation Paused",
+                flowLabel: "Net Heat Flow Status",
+                flowInitial: "No contact. Setup parameters & start.",
+                flowHotToCold: "Net heat flow is directed from Object A to Object B",
+                flowColdToHot: "Net heat flow is directed from Object B to Object A",
+                flowEquil: "Thermal Equilibrium: Net heat flow is zero",
+                mathTitle: "Theoretical Prediction Board",
+                labelFormula: "Heat Conservation Principle",
+                cardTempA: "Object A Temp",
+                cardTempB: "Object B Temp",
+                eqTargetLabel: "Calculated Final Temp (T_f)",
+                eqTargetSubtitle: "At thermal equilibrium",
+                labelProgress: "Thermal Equilibrium Progress",
+                chartTitle: "Temperature vs Time Graph",
+                essayTitle: "Interactive Essay Writing Guide",
+                essaySubtitle: "Draft a scientific explanation that scores high in physics papers!",
+                btnCopy: "Copy Guide Outline",
+                step1Title: "1. Thermal Contact",
+                step1Desc: "State that Object A and Object B are placed in thermal contact so that thermal transfer can occur.",
+                starter1: '"Object A and Object B are in thermal contact. Object A has a higher temperature than Object B..."',
+                step2Title: "2. Heat Flow Direction",
+                step2Desc: "Explain how heat energy transfers in both directions, but the net rate flows from hot to cold.",
+                starter2: '"Heat energy is transferred from both blocks simultaneously, but the rate of heat flow from Object A to B is higher..."',
+                step3Title: "3. Rate Change",
+                step3Desc: "Explain how the rate of net heat transfer gradually decreases as the temperature difference reduces.",
+                starter3: '"As the temperature difference between the blocks decreases, the net rate of heat transfer slows down..."',
+                step4Title: "4. Equilibrium State",
+                step4Desc: "Describe the equilibrium state. The temperatures become equal and net heat flow becomes zero.",
+                starter4: '"Finally, both blocks reach the same temperature. Net heat transfer is zero, and they are in thermal equilibrium..."',
+                notebookTitle: "Interactive Essay Practice Draft",
+                notebookGuide: "Draft your essay live based on current simulation values",
+                notebookWords: "Words:",
+                btnClearDraft: "Clear Workspace",
+                toastCopy: "Essay guide & structure copied to clipboard!",
+                toastClear: "Workspace cleared!"
+            },
+            ms: {
+                navTitle: "Simulator Keseimbangan Termal",
+                navSubtitle: "Alat Interaktif Pendidikan Fizik",
+                badgeTopic: "Haba & Termodinamik",
+                mainHeading: "Visualisasi Keseimbangan Termal",
+                mainDesc: "Apabila dua objek dengan suhu yang berbeza diletakkan dalam sentuhan termal, tenaga haba akan dipindahkan antara satu sama lain. Gunakan alat ini untuk memerhati peralihan, menganalisis lengkung suhu, dan gunakan panduan di bawah untuk menulis esei fizik yang cemerlang!",
+                controlsTitle: "Kawalan & Parameter Simulasi",
+                labelObjA: "Objek A (Kiri)",
+                labelObjB: "Objek B (Kanan)",
+                labelInitial: "Keadaan Awal",
+                labelInitialB: "Keadaan Awal",
+                labelMatA: "Bahan & Muatan Haba Tentu (c)",
+                labelMatB: "Bahan & Muatan Haba Tentu (c)",
+                labelTempA: "Suhu Awal",
+                labelTempB: "Suhu Awal",
+                labelMassA: "Jisim (m)",
+                labelMassB: "Jisim (m)",
+                btnStart: "Mula Simulasi",
+                btnPause: "Jeda",
+                btnReset: "Set Semula",
+                visualizerTitle: "Paparan Pemindahan Termal Langsung",
+                statusReady: "Sedia untuk dipindahkan",
+                statusActive: "Haba sedang mengalir...",
+                statusEquilibrium: "Keseimbangan Termal dicapai!",
+                statusPaused: "Simulasi Dijeda",
+                flowLabel: "Status Aliran Haba Bersih",
+                flowInitial: "Tiada sentuhan. Tetapkan parameter & mulakan.",
+                flowHotToCold: "Aliran haba bersih dialirkan dari Objek A ke Objek B",
+                flowColdToHot: "Aliran haba bersih dialirkan dari Objek B ke Objek A",
+                flowEquil: "Keseimbangan Termal: Aliran haba bersih adalah sifar",
+                mathTitle: "Papan Ramalan Teori",
+                labelFormula: "Prinsip Keabadian Haba",
+                cardTempA: "Suhu Objek A",
+                cardTempB: "Suhu Objek B",
+                eqTargetLabel: "Suhu Akhir Ditentukan (T_f)",
+                eqTargetSubtitle: "Suhu pada keseimbangan termal",
+                labelProgress: "Kemajuan Keseimbangan Termal",
+                chartTitle: "Graf Suhu melawan Masa",
+                essayTitle: "Panduan Penulisan Esei Interaktif",
+                essaySubtitle: "Rangka penjelasan saintifik untuk skor tinggi dalam kertas fizik!",
+                btnCopy: "Salin Rangka Panduan",
+                step1Title: "1. Sentuhan Termal",
+                step1Desc: "Nyatakan bahawa Objek A dan Objek B diletakkan dalam sentuhan termal bagi membolehkan pemindahan haba berlaku.",
+                starter1: '"Objek A dan Objek B berada dalam sentuhan termal. Objek A mempunyai suhu lebih tinggi daripada Objek B..."',
+                step2Title: "2. Arah Aliran Haba",
+                step2Desc: "Terangkan bagaimana tenaga haba mengalir ke kedua-dua arah, tetapi kadar bersih dari panas ke sejuk.",
+                starter2: '"Tenaga haba dipindahkan daripada kedua-dua blok secara serentak, tetapi kadar pengaliran haba dari A ke B adalah lebih tinggi..."',
+                step3Title: "3. Perubahan Kadar",
+                step3Desc: "Terangkan bagaimana kadar pemindahan haba bersih berkurang secara beransur-ansur apabila perbezaan suhu berkurang.",
+                starter3: '"Apabila perbezaan suhu antara blok berkurang, kadar bersih pemindahan haba menjadi perlahan..."',
+                step4Title: "4. Keadaan Keseimbangan",
+                step4Desc: "Huraikan keadaan keseimbangan termal. Suhu akhir adalah sama dan kadar pemindahan haba bersih ialah sifar.",
+                starter4: '"Akhirnya, kedua-dua blok mencapai suhu yang sama. Aliran haba bersih menjadi sifar, dan keseimbangan termal dicapai..."',
+                notebookTitle: "Draf Latihan Esei Interaktif",
+                notebookGuide: "Tulis draf esei anda berdasarkan nilai simulasi masa nyata",
+                notebookWords: "Perkataan:",
+                btnClearDraft: "Kosongkan Ruang Kerja",
+                toastCopy: "Panduan esei & rangka kerja berjaya disalin!",
+                toastClear: "Ruang kerja dikosongkan!"
+            }
+        };
 
-      // 5. Draw Image Arrow (Real/Virtual representation)
-      if (!res.isInfinite) {
-        const imgPxX = mirrorX - (res.v * SCALE);
-        const imgPxY = axisY - (res.h_i * SCALE * (res.v > 0 && currentMirror !== 'plane' ? -1 : 1));
+        // Initialize UI translation
+        function updateUI() {
+            const translation = dict[lang];
+            
+            // Text Elements
+            document.getElementById('nav-title').innerText = translation.navTitle;
+            document.getElementById('nav-subtitle').innerText = translation.navSubtitle;
+            document.getElementById('badge-topic').innerText = translation.badgeTopic;
+            document.getElementById('main-heading').innerText = translation.mainHeading;
+            document.getElementById('main-desc').innerText = translation.mainDesc;
+            document.getElementById('controls-title').innerText = translation.controlsTitle;
+            document.getElementById('label-objA').innerText = translation.labelObjA;
+            document.getElementById('label-objB').innerText = translation.labelObjB;
+            document.getElementById('label-initial').innerText = translation.labelInitial;
+            document.getElementById('label-initialB').innerText = translation.labelInitial;
+            document.getElementById('label-matA').innerText = translation.labelMatA;
+            document.getElementById('label-matB').innerText = translation.labelMatB;
+            document.getElementById('label-tempA').innerText = translation.labelTempA;
+            document.getElementById('label-tempB').innerText = translation.labelTempB;
+            document.getElementById('label-massA').innerText = translation.labelMassA;
+            document.getElementById('label-massB').innerText = translation.labelMassB;
+            
+            // Buttons
+            document.getElementById('btn-reset-text').innerText = translation.btnReset;
+            updateStartButtonText();
 
-        ctx.beginPath();
-        // Virtual images behind the mirror are dashed
-        if (res.v < 0) {
-          ctx.setLineDash([4, 4]);
-          ctx.strokeStyle = 'rgba(16, 185, 129, 0.7)'; // dashed green for virtual
-        } else {
-          ctx.setLineDash([]);
-          ctx.strokeStyle = '#10b981'; // solid green for real
-        }
-        ctx.lineWidth = 4;
-        ctx.moveTo(imgPxX, axisY);
-        ctx.lineTo(imgPxX, imgPxY);
-        ctx.stroke();
+            // Card details
+            document.getElementById('visualizer-title').innerText = translation.visualizerTitle;
+            document.getElementById('flow-label').innerText = translation.flowLabel;
+            document.getElementById('math-title').innerText = translation.mathTitle;
+            document.getElementById('label-formula').innerText = translation.labelFormula;
+            document.getElementById('card-tempA').innerText = translation.cardTempA;
+            document.getElementById('card-tempB').innerText = translation.cardTempB;
+            document.getElementById('eq-target-label').innerText = translation.eqTargetLabel;
+            document.getElementById('eq-target-subtitle').innerText = translation.eqTargetSubtitle;
+            document.getElementById('label-progress').innerText = translation.labelProgress;
+            document.getElementById('chart-title').innerText = translation.chartTitle;
 
-        // Arrow head for image
-        ctx.beginPath();
-        ctx.fillStyle = res.v < 0 ? 'rgba(16, 185, 129, 0.7)' : '#10b981';
-        const arrowDir = (res.v > 0 && currentMirror !== 'plane') ? 1 : -1; // point down if inverted
-        ctx.moveTo(imgPxX - 6, imgPxY + (arrowDir * 8));
-        ctx.lineTo(imgPxX + 6, imgPxY + (arrowDir * 8));
-        ctx.lineTo(imgPxX, imgPxY);
-        ctx.fill();
+            // Essay section
+            document.getElementById('essay-title').innerText = translation.essayTitle;
+            document.getElementById('essay-subtitle').innerText = translation.essaySubtitle;
+            document.getElementById('btn-copy').innerText = translation.btnCopy;
+            
+            document.getElementById('step1-title').innerText = translation.step1Title;
+            document.getElementById('step1-desc').innerText = translation.step1Desc;
+            document.getElementById('starter1').innerText = translation.starter1;
 
-        // Label Image
-        ctx.fillStyle = '#10b981';
-        ctx.font = 'bold 10px system-ui';
-        ctx.fillText(currentLanguage === 'en' ? 'IMAGE' : 'IMEJ', imgPxX - 16, imgPxY + (arrowDir * 18));
-      }
+            document.getElementById('step2-title').innerText = translation.step2Title;
+            document.getElementById('step2-desc').innerText = translation.step2Desc;
+            document.getElementById('starter2').innerText = translation.starter2;
 
-      // 6. Draw Light Rays (The actual Ray Diagrams physics)
-      drawPhysicsRays(ctx, mirrorX, axisY, objPxX, objPxY, res, w);
+            document.getElementById('step3-title').innerText = translation.step3Title;
+            document.getElementById('step3-desc').innerText = translation.step3Desc;
+            document.getElementById('starter3').innerText = translation.starter3;
 
-      // 7. Draw Object Arrow (Drawn on top of rays so it's always visible/interactive)
-      ctx.beginPath();
-      ctx.setLineDash([]);
-      ctx.strokeStyle = '#6366f1'; // bright indigo
-      ctx.lineWidth = 4.5;
-      ctx.moveTo(objPxX, axisY);
-      ctx.lineTo(objPxX, objPxY);
-      ctx.stroke();
+            document.getElementById('step4-title').innerText = translation.step4Title;
+            document.getElementById('step4-desc').innerText = translation.step4Desc;
+            document.getElementById('starter4').innerText = translation.starter4;
 
-      // Arrow head for object
-      ctx.beginPath();
-      ctx.fillStyle = '#6366f1';
-      ctx.moveTo(objPxX - 7, objPxY + 9);
-      ctx.lineTo(objPxX + 7, objPxY + 9);
-      ctx.lineTo(objPxX, objPxY);
-      ctx.fill();
+            document.getElementById('notebook-title').innerText = translation.notebookTitle;
+            document.getElementById('notebook-guide').innerText = translation.notebookGuide;
+            document.getElementById('notebook-words').innerText = translation.notebookWords;
+            document.getElementById('btn-clear-draft').innerText = translation.btnClearDraft;
 
-      // Label Object
-      ctx.fillStyle = '#a5b4fc';
-      ctx.font = 'bold 10px system-ui';
-      ctx.fillText(currentLanguage === 'en' ? 'OBJECT' : 'OBJEK', objPxX - 20, objPxY - 14);
+            // Set placeholder for draft textarea dynamically
+            if (lang === 'en') {
+                document.getElementById('essay-draft').placeholder = "Start typing your essay here... Click 'Sentence Starters' to paste templates directly. Use current values like Initial Temp (A: " + document.getElementById('val-tempA').innerText + "°C, B: " + document.getElementById('val-tempB').innerText + "°C) and predicted final Temp: " + document.getElementById('calc-final-temp').innerText + ".";
+            } else {
+                document.getElementById('essay-draft').placeholder = "Mula menulis esei anda di sini... Klik pada 'Sentence Starters' untuk menampal rangka ayat secara langsung. Gunakan nilai semasa seperti Suhu Awal (A: " + document.getElementById('val-tempA').innerText + "°C, B: " + document.getElementById('val-tempB').innerText + "°C) dan suhu keseimbangan ramalan: " + document.getElementById('calc-final-temp').innerText + ".";
+            }
 
-      // Interactive Control Handle node on object tip
-      ctx.beginPath();
-      ctx.arc(objPxX, objPxY, 7, 0, 2 * Math.PI);
-      ctx.fillStyle = '#f59e0b'; // Amber yellow interactive handle
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 2;
-      ctx.fill();
-      ctx.stroke();
-    }
-
-    // DRAW BOTH THE ACTUAL OBJECT AND REFLECTED REALISTIC IMAGE
-    function drawRealisticObservation(ticker = 0) {
-      realCtx.clearRect(0, 0, realCanvas.width, realCanvas.height);
-      
-      const { w, h, mirrorX, axisY } = getCanvasCoords(realCanvas);
-      const res = runPhysics();
-
-      const objPxX = mirrorX - (res.u * SCALE);
-      const objHeightPx = res.h_o * SCALE;
-
-      // 1. Draw Grid Lines behind the real world
-      drawGrid(realCtx, w, h, mirrorX, axisY);
-
-      // 2. Draw Table/Bench Surface (The desk supporting the experiment)
-      realCtx.fillStyle = '#0f172a';
-      realCtx.fillRect(0, axisY, w, h - axisY);
-      
-      realCtx.beginPath();
-      realCtx.strokeStyle = '#1e293b';
-      realCtx.lineWidth = 2.5;
-      realCtx.moveTo(0, axisY);
-      realCtx.lineTo(w, axisY);
-      realCtx.stroke();
-
-      // 3. Draw Mirror surface (as a beautiful curved metallic piece)
-      drawMirrorStructure(realCtx, mirrorX, axisY, h);
-
-      // 4. DRAW ACTUAL PHYSICAL OBJECT (Candle with Flame) ON THE DESK
-      drawCandle(realCtx, objPxX, axisY, objHeightPx, false, false, ticker);
-
-      // Label Object
-      realCtx.fillStyle = '#818cf8';
-      realCtx.font = 'bold 9px system-ui';
-      realCtx.textAlign = 'center';
-      realCtx.fillText(dict[currentLanguage].candleObj, objPxX, axisY + 18);
-
-      // 5. DRAW ACTUAL REFLECTED IMAGE
-      if (!res.isInfinite) {
-        const imgPxX = mirrorX - (res.v * SCALE);
-        const imgHeightPx = res.h_i * SCALE;
-        const isInverted = (res.v > 0 && currentMirror !== 'plane');
-        const isVirtual = res.v < 0;
-
-        drawCandle(realCtx, imgPxX, axisY, imgHeightPx, isInverted, isVirtual, ticker);
-
-        // Label Image
-        realCtx.fillStyle = '#34d399';
-        realCtx.font = 'bold 9px system-ui';
-        realCtx.textAlign = 'center';
-        
-        const textY = isInverted ? (axisY + imgHeightPx + 18) : (axisY + 18);
-        realCtx.fillText(dict[currentLanguage].candleImg, imgPxX, textY);
-      } else {
-        // Render informational infinity badge
-        realCtx.fillStyle = '#64748b';
-        realCtx.font = 'italic 11px system-ui';
-        realCtx.textAlign = 'center';
-        realCtx.fillText(currentLanguage === 'en' ? "Image formed at Infinity" : "Imej terbentuk di Infiniti", w * 0.3, axisY - 20);
-      }
-    }
-
-    // Draw candle function
-    function drawCandle(ctx, x, baseY, height, isInverted, isVirtual, ticker = 0) {
-      ctx.save();
-      
-      // If virtual image, apply transparency
-      if (isVirtual) {
-        ctx.globalAlpha = 0.55;
-      }
-
-      // Handle flip for inversion
-      const direction = isInverted ? 1 : -1;
-      
-      // Calculate scaled parts of the candle based on total height
-      const bodyHeight = height * 0.72;
-      const wickHeight = height * 0.08;
-      const flameHeight = height * 0.20;
-
-      // Draw shadow/glow behind the candle
-      if (!isVirtual) {
-        const glowRad = flameHeight * 2;
-        const glowGrad = ctx.createRadialGradient(x, baseY + (direction * (bodyHeight + wickHeight)), 1, x, baseY + (direction * (bodyHeight + wickHeight)), glowRad);
-        glowGrad.addColorStop(0, 'rgba(253, 186, 116, 0.25)');
-        glowGrad.addColorStop(1, 'rgba(253, 186, 116, 0)');
-        ctx.fillStyle = glowGrad;
-        ctx.beginPath();
-        ctx.arc(x, baseY + (direction * (bodyHeight + wickHeight)), glowRad, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Draw Candle Stand / Holder Base
-      ctx.strokeStyle = '#475569';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(x - 12, baseY);
-      ctx.lineTo(x + 12, baseY);
-      ctx.stroke();
-
-      // Draw Wax Body
-      const bodyWidth = Math.max(6, height * 0.22);
-      const topY = baseY + (direction * bodyHeight);
-
-      // Color Gradient for Wax
-      const waxGrad = ctx.createLinearGradient(x - bodyWidth/2, baseY, x + bodyWidth/2, baseY);
-      waxGrad.addColorStop(0, '#f43f5e'); // Red wax
-      waxGrad.addColorStop(0.5, '#fda4af');
-      waxGrad.addColorStop(1, '#e11d48');
-      ctx.fillStyle = waxGrad;
-
-      ctx.beginPath();
-      ctx.rect(x - bodyWidth/2, baseY, bodyWidth, direction * bodyHeight);
-      ctx.fill();
-
-      // Candle wick
-      ctx.strokeStyle = '#d97706';
-      ctx.lineWidth = 1.8;
-      ctx.beginPath();
-      ctx.moveTo(x, topY);
-      ctx.lineTo(x, topY + (direction * wickHeight));
-      ctx.stroke();
-
-      // Glowing flickering flame
-      const flameTopY = topY + (direction * (wickHeight + flameHeight));
-      const flameMidY = topY + (direction * (wickHeight + flameHeight * 0.4));
-      
-      // Gentle flicker effect
-      const flickerOffset = Math.sin(ticker * 0.2) * (flameHeight * 0.1);
-
-      ctx.beginPath();
-      ctx.moveTo(x, topY + (direction * wickHeight));
-      // Curve left of flame
-      ctx.quadraticCurveTo(
-        x - (bodyWidth * 0.5) + flickerOffset, flameMidY,
-        x, flameTopY
-      );
-      // Curve right of flame
-      ctx.quadraticCurveTo(
-        x + (bodyWidth * 0.5) + flickerOffset, flameMidY,
-        x, topY + (direction * wickHeight)
-      );
-      
-      const flameGrad = ctx.createLinearGradient(x, topY + (direction * wickHeight), x, flameTopY);
-      flameGrad.addColorStop(0, '#ea580c'); // Orange/Red base
-      flameGrad.addColorStop(0.6, '#facc15'); // Yellow middle
-      flameGrad.addColorStop(1, '#ffffff'); // White tip
-      ctx.fillStyle = flameGrad;
-      ctx.fill();
-
-      ctx.restore();
-    }
-
-    // Grid Renderer
-    function drawGrid(ctxTarget, w, h, mirrorX, axisY) {
-      ctxTarget.strokeStyle = '#1e293b';
-      ctxTarget.lineWidth = 0.5;
-      ctxTarget.setLineDash([]);
-
-      // Vertical lines
-      for (let x = mirrorX; x < w; x += 20) {
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(x, 0); ctxTarget.lineTo(x, h); ctxTarget.stroke();
-      }
-      for (let x = mirrorX; x > 0; x -= 20) {
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(x, 0); ctxTarget.lineTo(x, h); ctxTarget.stroke();
-      }
-
-      // Horizontal lines
-      for (let y = axisY; y < h; y += 20) {
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(0, y); ctxTarget.lineTo(w, y); ctxTarget.stroke();
-      }
-      for (let y = axisY; y > 0; y -= 20) {
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(0, y); ctxTarget.lineTo(w, y); ctxTarget.stroke();
-      }
-    }
-
-    // Visual design of actual physical mirror
-    function drawMirrorStructure(ctxTarget, x, axisY, canvasH) {
-      ctxTarget.beginPath();
-      ctxTarget.setLineDash([]);
-      ctxTarget.lineWidth = 6;
-      ctxTarget.strokeStyle = '#cbd5e1';
-
-      if (currentMirror === 'plane') {
-        // Vertical line
-        ctxTarget.moveTo(x, 15);
-        ctxTarget.lineTo(x, canvasH - 15);
-        ctxTarget.stroke();
-
-        // Shading lines to indicate the back (silvered) surface of mirror on the right
-        ctxTarget.strokeStyle = '#475569';
-        ctxTarget.lineWidth = 1.5;
-        for (let y = 20; y < canvasH - 15; y += 12) {
-          ctxTarget.beginPath();
-          ctxTarget.moveTo(x, y);
-          ctxTarget.lineTo(x + 10, y + 8);
-          ctxTarget.stroke();
-        }
-      } else if (currentMirror === 'concave') {
-        // Concave mirror curves toward the left (converging face on the left)
-        ctxTarget.arc(x + 280, axisY, 300, Math.PI - 0.35, Math.PI + 0.35);
-        ctxTarget.stroke();
-
-        // Backside shading (curves on right side of mirror line)
-        ctxTarget.strokeStyle = '#475569';
-        ctxTarget.lineWidth = 1.5;
-        const totalSteps = 25;
-        for (let i = 0; i <= totalSteps; i++) {
-          const angle = (Math.PI - 0.34) + (0.68 * (i / totalSteps));
-          const arcX = x + 280 + 300 * Math.cos(angle);
-          const arcY = axisY + 300 * Math.sin(angle);
-          ctxTarget.beginPath();
-          ctxTarget.moveTo(arcX, arcY);
-          ctxTarget.lineTo(arcX + 8 * Math.cos(angle - 0.2), arcY + 8 * Math.sin(angle - 0.2));
-          ctxTarget.stroke();
-        }
-      } else if (currentMirror === 'convex') {
-        // Convex mirror curves away (diverging face on the left)
-        ctxTarget.arc(x - 280, axisY, 300, -0.35, 0.35);
-        ctxTarget.stroke();
-
-        // Backside shading (curves on inner left side of mirror curve)
-        ctxTarget.strokeStyle = '#475569';
-        ctxTarget.lineWidth = 1.5;
-        const totalSteps = 25;
-        for (let i = 0; i <= totalSteps; i++) {
-          const angle = -0.34 + (0.68 * (i / totalSteps));
-          const arcX = x - 280 + 300 * Math.cos(angle);
-          const arcY = axisY + 300 * Math.sin(angle);
-          ctxTarget.beginPath();
-          ctxTarget.moveTo(arcX, arcY);
-          ctxTarget.lineTo(arcX - 8 * Math.cos(angle + 0.2), arcY - 8 * Math.sin(angle + 0.2));
-          ctxTarget.stroke();
-        }
-      }
-    }
-
-    // Plot a styled diagnostic/physics point label
-    function drawPoint(ctxTarget, x, y, color, label) {
-      ctxTarget.beginPath();
-      ctxTarget.arc(x, y, 4.5, 0, 2 * Math.PI);
-      ctxTarget.fillStyle = color;
-      ctxTarget.fill();
-
-      ctxTarget.fillStyle = '#f1f5f9';
-      ctxTarget.font = 'bold 12px monospace';
-      ctxTarget.fillText(label, x - 4, y + 18);
-    }
-
-    // Direct Ray Diagram Calculation & Drawing
-    function drawPhysicsRays(ctxTarget, mirrorX, axisY, objX, objY, res, canvasW) {
-      const u = res.u * SCALE;
-      const h_o = res.h_o * SCALE;
-      const f = res.f * SCALE;
-
-      // Ensure we draw cleanly with colors
-      const colRay1 = '#8b5cf6'; // Parallel: Violet
-      const colRay2 = '#10b981'; // Focal: Emerald
-      const colRay3 = '#f59e0b'; // Radial: Amber
-
-      if (currentMirror === 'plane') {
-        // --- PLANE MIRROR RAY TRACING ---
-        // Ray 1: Parallel to axis, reflects back in same direction
-        ctxTarget.strokeStyle = colRay1;
-        ctxTarget.lineWidth = 1.5;
-        ctxTarget.setLineDash([]);
-        
-        // Incident
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(objX, objY);
-        ctxTarget.lineTo(mirrorX, objY);
-        ctxTarget.stroke();
-        drawRayArrow(ctxTarget, objX, objY, mirrorX, objY, colRay1);
-
-        // Virtual extension behind mirror
-        ctxTarget.beginPath();
-        ctxTarget.strokeStyle = colRay1;
-        ctxTarget.setLineDash([3, 3]);
-        ctxTarget.moveTo(mirrorX, objY);
-        ctxTarget.lineTo(mirrorX + u, objY);
-        ctxTarget.stroke();
-
-        // Ray 2: Ray hitting the center axis intercept (Law of Reflection)
-        ctxTarget.beginPath();
-        ctxTarget.strokeStyle = colRay2;
-        ctxTarget.setLineDash([]);
-        ctxTarget.moveTo(objX, objY);
-        ctxTarget.lineTo(mirrorX, axisY);
-        ctxTarget.stroke();
-        drawRayArrow(ctxTarget, objX, objY, mirrorX, axisY, colRay2);
-
-        // Reflected ray downwards
-        const reflectAngleY = axisY + h_o;
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(mirrorX, axisY);
-        ctxTarget.lineTo(objX - 20, reflectAngleY + ((reflectAngleY - axisY) / u) * 20);
-        ctxTarget.stroke();
-        drawRayArrow(ctxTarget, mirrorX, axisY, objX - 20, reflectAngleY + ((reflectAngleY - axisY) / u) * 20, colRay2);
-
-        // Virtual extension behind mirror
-        ctxTarget.beginPath();
-        ctxTarget.strokeStyle = colRay2;
-        ctxTarget.setLineDash([3, 3]);
-        ctxTarget.moveTo(mirrorX, axisY);
-        ctxTarget.lineTo(mirrorX + u, axisY - h_o);
-        ctxTarget.stroke();
-
-      } else if (currentMirror === 'concave') {
-        // --- CONCAVE MIRROR RAY TRACING ---
-        const fX = mirrorX - f;
-        const cX = mirrorX - 2 * f;
-
-        // --- RAY 1: Parallel -> Reflects through F ---
-        ctxTarget.strokeStyle = colRay1;
-        ctxTarget.lineWidth = 1.5;
-        ctxTarget.setLineDash([]);
-        
-        // Incident
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(objX, objY);
-        ctxTarget.lineTo(mirrorX, objY);
-        ctxTarget.stroke();
-        drawRayArrow(ctxTarget, objX, objY, mirrorX, objY, colRay1);
-
-        // Reflected (through F)
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(mirrorX, objY);
-        // Extend reflecting path to left of canvas
-        const slope1 = (axisY - objY) / f;
-        const targetX1 = 0;
-        const targetY1 = axisY + slope1 * (mirrorX - targetX1);
-        ctxTarget.lineTo(targetX1, targetY1);
-        ctxTarget.stroke();
-        drawRayArrow(ctxTarget, mirrorX, objY, fX, axisY, colRay1);
-
-        // Virtual extension behind mirror (if object is inside focal point)
-        if (res.u < res.f) {
-          ctxTarget.beginPath();
-          ctxTarget.setLineDash([3, 3]);
-          ctxTarget.moveTo(mirrorX, objY);
-          const virtualSlopeY = objY - ((objY - axisY) / f) * (mirrorX - (mirrorX + Math.abs(res.v) * SCALE));
-          ctxTarget.lineTo(mirrorX + Math.abs(res.v) * SCALE, virtualSlopeY);
-          ctxTarget.stroke();
+            // Update status indicators
+            updateStatusText();
+            updateChartConfigLabels();
         }
 
-        // --- RAY 2: Through F -> Reflects Parallel ---
-        // Only draw/calculate if not at focal boundary
-        if (!res.isInfinite) {
-          ctxTarget.strokeStyle = colRay2;
-          ctxTarget.setLineDash([]);
-          
-          // Incident from Object tip through F to mirror
-          const slope2 = (axisY - objY) / (mirrorX - u - fX);
-          const mirrorY2 = axisY + slope2 * (mirrorX - fX);
+        // Change App Language State
+        function setLanguage(selectedLang) {
+            lang = selectedLang;
+            
+            // Styling updates to tab buttons
+            const btnEn = document.getElementById('btn-en');
+            const btnMs = document.getElementById('btn-ms');
+            
+            if (lang === 'en') {
+                btnEn.className = "px-3 py-1 text-xs font-semibold rounded transition-all duration-200 bg-teal-500 text-slate-950 shadow";
+                btnMs.className = "px-3 py-1 text-xs font-semibold rounded transition-all duration-200 text-slate-400 hover:text-slate-100";
+            } else {
+                btnMs.className = "px-3 py-1 text-xs font-semibold rounded transition-all duration-200 bg-teal-500 text-slate-950 shadow";
+                btnEn.className = "px-3 py-1 text-xs font-semibold rounded transition-all duration-200 text-slate-400 hover:text-slate-100";
+            }
 
-          ctxTarget.beginPath();
-          ctxTarget.moveTo(objX, objY);
-          ctxTarget.lineTo(mirrorX, mirrorY2);
-          ctxTarget.stroke();
-          drawRayArrow(ctxTarget, objX, objY, fX, axisY, colRay2);
-
-          // Reflected parallel
-          ctxTarget.beginPath();
-          ctxTarget.moveTo(mirrorX, mirrorY2);
-          ctxTarget.lineTo(0, mirrorY2);
-          ctxTarget.stroke();
-          drawRayArrow(ctxTarget, mirrorX, mirrorY2, 0, mirrorY2, colRay2);
-
-          // Virtual extension behind mirror
-          if (res.u < res.f) {
-            ctxTarget.beginPath();
-            ctxTarget.setLineDash([3, 3]);
-            ctxTarget.moveTo(mirrorX, mirrorY2);
-            ctxTarget.lineTo(mirrorX + Math.abs(res.v) * SCALE, mirrorY2);
-            ctxTarget.stroke();
-          }
+            updateUI();
         }
 
-        // --- RAY 3: Through C -> Reflects back on itself ---
-        ctxTarget.strokeStyle = colRay3;
-        ctxTarget.setLineDash([]);
-        
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(cX, axisY);
-        ctxTarget.lineTo(objX, objY);
-        // Calculate collision point on mirror curve
-        const slope3 = (objY - axisY) / (objX - cX);
-        const mirrorCollideX = mirrorX;
-        const mirrorCollideY = axisY + slope3 * (mirrorX - cX);
-        ctxTarget.lineTo(mirrorCollideX, mirrorCollideY);
-        ctxTarget.stroke();
-        
-        drawRayArrow(ctxTarget, objX, objY, mirrorCollideX, mirrorCollideY, colRay3);
-        drawRayArrow(ctxTarget, mirrorCollideX, mirrorCollideY, objX, objY, colRay3);
-
-        // Virtual extension behind mirror
-        if (res.u < res.f) {
-          ctxTarget.beginPath();
-          ctxTarget.setLineDash([3, 3]);
-          ctxTarget.moveTo(mirrorCollideX, mirrorCollideY);
-          const virtualY = axisY + slope3 * (mirrorX + Math.abs(res.v) * SCALE - cX);
-          ctxTarget.lineTo(mirrorX + Math.abs(res.v) * SCALE, virtualY);
-          ctxTarget.stroke();
+        function updateStartButtonText() {
+            const btnText = document.getElementById('btn-start-text');
+            if (isRunning) {
+                btnText.innerText = dict[lang].btnPause;
+            } else {
+                btnText.innerText = dict[lang].btnStart;
+            }
         }
 
-      } else if (currentMirror === 'convex') {
-        // --- CONVEX MIRROR RAY TRACING ---
-        const fX = mirrorX + f;
-        const cX = mirrorX + 2 * f;
+        function updateStatusText() {
+            const statusText = document.getElementById('status-text');
+            const flowValue = document.getElementById('flow-status-value');
+            const translation = dict[lang];
 
-        // --- RAY 1: Parallel -> Reflects as if from F ---
-        ctxTarget.strokeStyle = colRay1;
-        ctxTarget.lineWidth = 1.5;
-        ctxTarget.setLineDash([]);
+            const diff = Math.abs(tempA - tempB);
+            const initialDiff = Math.abs(parseFloat(document.getElementById('slide-tempA').value) - parseFloat(document.getElementById('slide-tempB').value));
 
-        // Incident
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(objX, objY);
-        ctxTarget.lineTo(mirrorX, objY);
-        ctxTarget.stroke();
-        drawRayArrow(ctxTarget, objX, objY, mirrorX, objY, colRay1);
+            if (diff < 0.05 && currentTimer > 0) {
+                statusText.innerText = translation.statusEquilibrium;
+                flowValue.innerHTML = `<span class="text-teal-400 flex items-center space-x-1">
+                    <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4"/></svg>
+                    <span>${translation.flowEquil}</span>
+                </span>`;
+                
+                // Progress indicator full
+                document.getElementById('progress-bar').style.width = "100%";
+                document.getElementById('progress-percent').innerText = "100%";
+            } else if (isRunning) {
+                statusText.innerText = translation.statusActive;
+                
+                // Show dynamic net direction
+                if (tempA > tempB) {
+                    flowValue.innerHTML = `<span class="text-orange-400 flex items-center space-x-1">
+                        <span>${translation.flowHotToCold}</span>
+                        <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                    </span>`;
+                } else {
+                    flowValue.innerHTML = `<span class="text-sky-400 flex items-center space-x-1">
+                        <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 19l-7-7 7-7M19 19l-7-7 7-7"/></svg>
+                        <span>${translation.flowColdToHot}</span>
+                    </span>`;
+                }
 
-        // Reflected (diverges directly away from virtual F)
-        const slope1 = (objY - axisY) / f; // diverging slope
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(mirrorX, objY);
-        const targetX1 = 0;
-        const targetY1 = objY + slope1 * (mirrorX - targetX1);
-        ctxTarget.lineTo(targetX1, targetY1);
-        ctxTarget.stroke();
-        drawRayArrow(ctxTarget, mirrorX, objY, targetX1, targetY1, colRay1);
+                // Show dynamic calculation of thermal progress
+                const completionPercentage = Math.min(100, Math.floor(((initialDiff - diff) / initialDiff) * 100));
+                document.getElementById('progress-bar').style.width = `${completionPercentage}%`;
+                document.getElementById('progress-percent').innerText = `${completionPercentage}%`;
+            } else if (currentTimer > 0) {
+                statusText.innerText = translation.statusPaused;
+            } else {
+                statusText.innerText = translation.statusReady;
+                flowValue.innerText = translation.flowInitial;
+                document.getElementById('progress-bar').style.width = "0%";
+                document.getElementById('progress-percent').innerText = "0%";
+            }
+        }
 
-        // Virtual reflection path inside mirror to F
-        ctxTarget.beginPath();
-        ctxTarget.setLineDash([3, 3]);
-        ctxTarget.moveTo(mirrorX, objY);
-        ctxTarget.lineTo(fX, axisY);
-        ctxTarget.stroke();
+        // Calculate and return values
+        function getInputs() {
+            return {
+                initTempA: parseFloat(document.getElementById('slide-tempA').value),
+                initMassA: parseFloat(document.getElementById('slide-massA').value),
+                initTempB: parseFloat(document.getElementById('slide-tempB').value),
+                initMassB: parseFloat(document.getElementById('slide-massB').value)
+            };
+        }
 
-        // --- RAY 2: Toward F -> Reflects Parallel ---
-        ctxTarget.strokeStyle = colRay2;
-        ctxTarget.setLineDash([]);
+        function calculateEquilibriumTemp(ta, ma, ca, tb, mb, cb) {
+            // Formula: Tf = (m1 c1 T1 + m2 c2 T2) / (m1 c1 + m2 c2)
+            const num = (ma * ca * ta) + (mb * cb * tb);
+            const den = (ma * ca) + (mb * cb);
+            return num / den;
+        }
 
-        // Intersection point on the convex mirror surface of a ray targeting F
-        const slope2 = (axisY - objY) / (fX - objX);
-        const mirrorCollideY2 = objY + slope2 * (mirrorX - objX);
+        function updateTheoreticalCalculation() {
+            const { initTempA, initMassA, initTempB, initMassB } = getInputs();
+            const finalTemp = calculateEquilibriumTemp(initTempA, initMassA, specHeatA, initTempB, initMassB, specHeatB);
+            document.getElementById('calc-final-temp').innerText = `${finalTemp.toFixed(1)} °C`;
+        }
 
-        // Incident
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(objX, objY);
-        ctxTarget.lineTo(mirrorX, mirrorCollideY2);
-        ctxTarget.stroke();
-        drawRayArrow(ctxTarget, objX, objY, mirrorX, mirrorCollideY2, colRay2);
+        // Handles material modifications
+        function updateMaterials() {
+            const selectA = document.getElementById('matA').value;
+            const selectB = document.getElementById('matB').value;
+            specHeatA = materials[selectA];
+            specHeatB = materials[selectB];
+            
+            updateTheoreticalCalculation();
+            resetSim();
+        }
 
-        // Reflected parallel (to the left)
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(mirrorX, mirrorCollideY2);
-        ctxTarget.lineTo(0, mirrorCollideY2);
-        ctxTarget.stroke();
-        drawRayArrow(ctxTarget, mirrorX, mirrorCollideY2, 0, mirrorCollideY2, colRay2);
+        function handleSliderChange() {
+            // Update labels
+            const inputs = getInputs();
+            document.getElementById('val-tempA').innerText = inputs.initTempA;
+            document.getElementById('val-massA').innerText = inputs.initMassA.toFixed(1);
+            
+            document.getElementById('val-tempB').innerText = inputs.initTempB;
+            document.getElementById('val-massB').innerText = inputs.initMassB.toFixed(1);
 
-        // Virtual dashed ray towards F
-        ctxTarget.beginPath();
-        ctxTarget.setLineDash([3, 3]);
-        ctxTarget.moveTo(mirrorX, mirrorCollideY2);
-        ctxTarget.lineTo(fX, axisY);
-        ctxTarget.stroke();
+            updateTheoreticalCalculation();
+            resetSim();
+        }
 
-        // --- RAY 3: Toward C -> Reflects back along path ---
-        ctxTarget.strokeStyle = colRay3;
-        ctxTarget.setLineDash([]);
+        // Setup the graphical layout
+        function setupChart() {
+            const chartCtx = document.getElementById('tempChart').getContext('2d');
+            
+            if (tempChartInstance) {
+                tempChartInstance.destroy();
+            }
 
-        // Path of incident ray aiming directly at virtual C behind mirror
-        const slope3 = (axisY - objY) / (cX - objX);
-        const mirrorCollideY3 = objY + slope3 * (mirrorX - objX);
+            tempChartInstance = new Chart(chartCtx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [
+                        {
+                            label: lang === 'en' ? 'Object A Temp (°C)' : 'Suhu Objek A (°C)',
+                            data: chartData.tempAHistory,
+                            borderColor: '#f97316',
+                            backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                            borderWidth: 2.5,
+                            tension: 0.15,
+                            pointRadius: 0
+                        },
+                        {
+                            label: lang === 'en' ? 'Object B Temp (°C)' : 'Suhu Objek B (°C)',
+                            data: chartData.tempBHistory,
+                            borderColor: '#38bdf8',
+                            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                            borderWidth: 2.5,
+                            tension: 0.15,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#cbd5e1',
+                                font: {
+                                    family: 'Plus Jakarta Sans',
+                                    size: 11
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                            ticks: { color: '#64748b' },
+                            title: {
+                                display: true,
+                                text: lang === 'en' ? 'Time (s)' : 'Masa (s)',
+                                color: '#94a3b8',
+                                font: { size: 10 }
+                            }
+                        },
+                        y: {
+                            min: 0,
+                            max: 100,
+                            grid: { color: 'rgba(51, 65, 85, 0.3)' },
+                            ticks: { color: '#64748b' },
+                            title: {
+                                display: true,
+                                text: lang === 'en' ? 'Temperature (°C)' : 'Suhu (°C)',
+                                color: '#94a3b8',
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
-        ctxTarget.beginPath();
-        ctxTarget.moveTo(objX, objY);
-        ctxTarget.lineTo(mirrorX, mirrorCollideY3);
-        ctxTarget.stroke();
-        drawRayArrow(ctxTarget, objX, objY, mirrorX, mirrorCollideY3, colRay3);
+        function updateChartConfigLabels() {
+            if (!tempChartInstance) return;
+            tempChartInstance.data.datasets[0].label = lang === 'en' ? 'Object A Temp (°C)' : 'Suhu Objek A (°C)';
+            tempChartInstance.data.datasets[1].label = lang === 'en' ? 'Object B Temp (°C)' : 'Suhu Objek B (°C)';
+            tempChartInstance.options.scales.x.title.text = lang === 'en' ? 'Time (s)' : 'Masa (s)';
+            tempChartInstance.options.scales.y.title.text = lang === 'en' ? 'Temperature (°C)' : 'Suhu (°C)';
+            tempChartInstance.update();
+        }
 
-        // Reflecting directly backward along incident slope
-        drawRayArrow(ctxTarget, mirrorX, mirrorCollideY3, objX, objY, colRay3);
+        // Draw Solid physics blocks representing heat boundaries
+        function drawBlocks() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const margin = 30;
+            const blockWidth = (canvas.width - 2 * margin) / 2;
+            const blockHeight = canvas.height - 40;
+            const yOffset = 15;
 
-        // Virtual extension behind mirror straight to C
-        ctxTarget.beginPath();
-        ctxTarget.setLineDash([3, 3]);
-        ctxTarget.moveTo(mirrorX, mirrorCollideY3);
-        ctxTarget.lineTo(cX, axisY);
-        ctxTarget.stroke();
-      }
-    }
+            // Generate gradient fill for Block A representing its temperature state (Red-Orange range)
+            const gradientA = ctx.createLinearGradient(margin, 0, margin + blockWidth, 0);
+            const colorA = getTemperatureColor(tempA);
+            gradientA.addColorStop(0, colorA);
+            // Blend contact boundary color smoothly
+            const blendColor = getTemperatureColor((tempA + tempB) / 2);
+            gradientA.addColorStop(1, blendColor);
 
-    // Helper to draw clean vector direction arrows on physical ray lines
-    function drawRayArrow(ctxTarget, fromX, fromY, toX, toY, color) {
-      const angle = Math.atan2(toY - fromY, toX - fromX);
-      const midX = (fromX + toX) / 2;
-      const midY = (fromY + toY) / 2;
+            ctx.fillStyle = gradientA;
+            ctx.beginPath();
+            ctx.roundRect(margin, yOffset, blockWidth, blockHeight, [12, 0, 0, 12]);
+            ctx.fill();
 
-      ctxTarget.save();
-      ctxTarget.fillStyle = color;
-      ctxTarget.beginPath();
-      ctxTarget.translate(midX, midY);
-      ctxTarget.rotate(angle);
-      // Arrow shape
-      ctxTarget.moveTo(-5, -4);
-      ctxTarget.lineTo(5, 0);
-      ctxTarget.lineTo(-5, 4);
-      ctxTarget.fill();
-      ctxTarget.restore();
-    }
+            // Generate gradient fill for Block B
+            const gradientB = ctx.createLinearGradient(margin + blockWidth, 0, margin + 2 * blockWidth, 0);
+            gradientB.addColorStop(0, blendColor);
+            gradientB.addColorStop(1, getTemperatureColor(tempB));
 
-    // Interactive Drag Mechanics
-    function handleDragStart(e) {
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
+            ctx.fillStyle = gradientB;
+            ctx.beginPath();
+            ctx.roundRect(margin + blockWidth, yOffset, blockWidth, blockHeight, [0, 12, 12, 0]);
+            ctx.fill();
 
-      const { mirrorX, axisY } = getCanvasCoords(canvas);
-      const objPxX = mirrorX - (paramU * SCALE);
-      const objPxY = axisY - (paramH * SCALE);
+            // Draw clean physical border separators
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 3;
+            ctx.stroke();
 
-      // Check if mouse clicked near the interactive control point at the tip of object
-      const dist = Math.hypot(mouseX - objPxX, mouseY - objPxY);
-      if (dist < 20) {
-        isDragging = true;
-      }
-    }
+            // Block Labels
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 13px Plus Jakarta Sans';
+            ctx.fillText(lang === 'en' ? 'Object A' : 'Objek A', margin + 20, yOffset + 30);
+            ctx.fillText(lang === 'en' ? 'Object B' : 'Objek B', margin + blockWidth + 20, yOffset + 30);
 
-    function handleDragMove(e) {
-      if (!isDragging) return;
+            // Print instant temperature overlays on blocks
+            ctx.font = 'bold 18px Plus Jakarta Sans';
+            ctx.fillText(`${tempA.toFixed(1)}°C`, margin + 20, yOffset + blockHeight - 20);
+            ctx.fillText(`${tempB.toFixed(1)}°C`, margin + blockWidth + 20, yOffset + blockHeight - 20);
 
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
+            // Draw heat flow particles
+            drawHeatFlowParticles(margin, blockWidth, blockHeight, yOffset);
+        }
 
-      const { mirrorX, axisY } = getCanvasCoords(canvas);
+        // Heat maps color scale
+        function getTemperatureColor(temp) {
+            // Min blue (0, 120, 255) to Max Hot Red (255, 60, 0)
+            const r = Math.min(255, Math.max(20, Math.floor((temp / 100) * 235 + 20)));
+            const g = Math.min(255, Math.max(30, Math.floor((1 - Math.abs(temp - 50) / 50) * 150 + 30)));
+            const b = Math.min(255, Math.max(255 - Math.floor((temp / 100) * 255), 20));
+            return `rgb(${r}, ${g}, ${b})`;
+        }
 
-      // Convert dragged pixel coordinates back into real centimeter values
-      let newU = (mirrorX - mouseX) / SCALE;
-      let newH = (axisY - mouseY) / SCALE;
+        // Visual Heat Flow Particle logic
+        function drawHeatFlowParticles(margin, blockWidth, blockHeight, yOffset) {
+            const diff = tempA - tempB;
+            const flowRate = Math.abs(diff) / 100; // Normalized flow magnitude
+            
+            // Generate active visual particles based on temperature gradient
+            if (isRunning && Math.abs(diff) > 0.05) {
+                // Determine direction
+                const directionRight = diff > 0;
+                
+                // Keep the canvas filled with particles relative to the flow rate
+                const targetParticleCount = Math.max(5, Math.floor(flowRate * 45));
+                if (heatParticles.length < targetParticleCount && Math.random() < 0.4) {
+                    heatParticles.push({
+                        x: directionRight ? margin + blockWidth / 2 : margin + 1.5 * blockWidth,
+                        y: yOffset + 20 + Math.random() * (blockHeight - 40),
+                        speed: (directionRight ? 1.5 : -1.5) * (0.5 + Math.random() * 1.5),
+                        size: 3 + Math.random() * 4,
+                        opacity: 0.8
+                    });
+                }
+            }
 
-      // Bound values
-      newU = Math.max(1, Math.min(150, newU));
-      newH = Math.max(5, Math.min(50, newH));
+            // Update & Draw particles
+            for (let i = heatParticles.length - 1; i >= 0; i--) {
+                const p = heatParticles[i];
+                p.x += p.speed;
+                p.opacity -= 0.005; // Fade over boundary range
 
-      paramU = Math.round(newU * 10) / 10;
-      paramH = Math.round(newH * 10) / 10;
+                // Draw heat glowing particle
+                ctx.fillStyle = `rgba(251, 146, 60, ${p.opacity})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
+                ctx.fill();
 
-      // Sync physical slider values
-      inputU.value = paramU;
-      inputH.value = paramH;
+                // Boundary/Lifespan clean up
+                const xLimitLeft = margin;
+                const xLimitRight = margin + 2 * blockWidth;
+                if (p.x < xLimitLeft || p.x > xLimitRight || p.opacity <= 0) {
+                    heatParticles.splice(i, 1);
+                }
+            }
+        }
 
-      updateUI();
-      drawAllSimulations();
-    }
+        // Mathematical Simulation Loop
+        function toggleSim() {
+            if (isRunning) {
+                // Pause
+                isRunning = false;
+                cancelAnimationFrame(animationId);
+            } else {
+                // Start
+                isRunning = true;
+                simulateStep();
+            }
+            updateStartButtonText();
+            updateStatusText();
+        }
 
-    function handleDragEnd() {
-      isDragging = false;
-    }
-  </script>
+        function simulateStep() {
+            if (!isRunning) return;
+
+            // Thermodynamic formula calculations
+            const { initTempA, initMassA, initTempB, initMassB } = getInputs();
+            const targetTf = calculateEquilibriumTemp(initTempA, initMassA, specHeatA, initTempB, initMassB, specHeatB);
+
+            const tempDiff = tempA - tempB;
+            
+            if (Math.abs(tempDiff) > 0.05) {
+                currentTimer += 1;
+
+                // Heat flow model: dQ/dt = k * A * (T_A - T_B)
+                // K factor models the thermal contact conductivity of standard surfaces
+                const kFactor = 0.03; 
+                const heatTransferred = kFactor * tempDiff;
+
+                // Adjust individual block temperatures: dT = dQ / (m * c)
+                // Scaling by constant to ensure smooth classroom speed relative to graph size
+                const speedCoeff = 80; 
+                tempA -= (heatTransferred * speedCoeff) / (massA * specHeatA);
+                tempB += (heatTransferred * speedCoeff) / (massB * specHeatB);
+
+                // Boundary protections
+                if (initTempA > initTempB) {
+                    if (tempA < targetTf) tempA = targetTf;
+                    if (tempB > targetTf) tempB = targetTf;
+                } else {
+                    if (tempA > targetTf) tempA = targetTf;
+                    if (tempB < targetTf) tempB = targetTf;
+                }
+
+                // Append and update graphical chart
+                if (currentTimer % 3 === 0 || currentTimer === 1) {
+                    chartData.labels.push((currentTimer / 10).toFixed(1));
+                    chartData.tempAHistory.push(tempA);
+                    chartData.tempBHistory.push(tempB);
+                    tempChartInstance.update('none');
+                }
+
+                // Update real-time numeric readouts
+                document.getElementById('live-tempA').innerText = `${tempA.toFixed(1)} °C`;
+                document.getElementById('live-tempB').innerText = `${tempB.toFixed(1)} °C`;
+                
+                updateStatusText();
+                drawBlocks();
+
+                animationId = requestAnimationFrame(simulateStep);
+            } else {
+                // Finalize exactly at target values once fully converged
+                tempA = targetTf;
+                tempB = targetTf;
+                document.getElementById('live-tempA').innerText = `${tempA.toFixed(1)} °C`;
+                document.getElementById('live-tempB').innerText = `${tempB.toFixed(1)} °C`;
+                
+                isRunning = false;
+                updateStartButtonText();
+                updateStatusText();
+                drawBlocks();
+            }
+        }
+
+        function resetSim() {
+            isRunning = false;
+            cancelAnimationFrame(animationId);
+            currentTimer = 0;
+            heatParticles = [];
+
+            const inputs = getInputs();
+            tempA = inputs.initTempA;
+            tempB = inputs.initTempB;
+            massA = inputs.initMassA;
+            massB = inputs.initMassB;
+
+            document.getElementById('live-tempA').innerText = `${tempA.toFixed(1)} °C`;
+            document.getElementById('live-tempB').innerText = `${tempB.toFixed(1)} °C`;
+
+            // Reset chart records
+            chartData.labels = ['0.0'];
+            chartData.tempAHistory = [tempA];
+            chartData.tempBHistory = [tempB];
+
+            setupChart();
+            updateStartButtonText();
+            updateStatusText();
+            drawBlocks();
+        }
+
+        // Interactive notebook functions
+        function fillDraft(step) {
+            const { initTempA, initTempB, initMassA, initMassB } = getInputs();
+            const finalTemp = calculateEquilibriumTemp(initTempA, initMassA, specHeatA, initTempB, initMassB, specHeatB).toFixed(1);
+            
+            const textarea = document.getElementById('essay-draft');
+            let textToInsert = '';
+
+            if (lang === 'en') {
+                switch(step) {
+                    case 1:
+                        textToInsert = `Object A (at initial temperature of ${initTempA}°C) is placed in thermal contact with Object B (at initial temperature of ${initTempB}°C). Because of the physical contact, thermal transfer can occur between them. `;
+                        break;
+                    case 2:
+                        textToInsert = `Heat energy is transferred simultaneously from Object A to Object B and from Object B to Object A. However, because Object A is hotter, the rate of heat flow from A to B is higher than the rate from B to A. Therefore, the net heat flow is from Object A to Object B. `;
+                        break;
+                    case 3:
+                        textToInsert = `As the heat flow continues, the temperature of Object A decreases while Object B increases. The temperature difference between the two objects gradually reduces, which causes the rate of net heat transfer to slow down. `;
+                        break;
+                    case 4:
+                        textToInsert = `Eventually, both Object A and Object B reach the same final temperature of ${finalTemp}°C. At this stage, the rate of heat flow from Object A to B equals the rate from Object B to A, meaning the net heat transfer is zero. The system is now in a state of thermal equilibrium. `;
+                        break;
+                }
+            } else {
+                switch(step) {
+                    case 1:
+                        textToInsert = `Objek A (pada suhu awal ${initTempA}°C) diletakkan dalam sentuhan termal dengan Objek B (pada suhu awal ${initTempB}°C). Disebabkan oleh sentuhan fizikal ini, pemindahan haba boleh berlaku antara kedua-dua blok tersebut. `;
+                        break;
+                    case 2:
+                        textToInsert = `Tenaga haba dipindahkan secara serentak dari Objek A ke Objek B dan dari Objek B ke Objek A. Walau bagaimanapun, disebabkan Objek A lebih panas, kadar pengaliran haba dari A ke B adalah lebih tinggi daripada kadar pengaliran dari B ke A. Oleh itu, aliran haba bersih adalah dari Objek A ke Objek B. `;
+                        break;
+                    case 3:
+                        textToInsert = `Sepanjang pemindahan haba berlaku, suhu Objek A berkurang manakala suhu Objek B meningkat. Perbezaan suhu antara kedua-dua objek berkurang secara beransur-ansur, yang menyebabkan kadar aliran haba bersih menjadi semakin perlahan. `;
+                        break;
+                    case 4:
+                        textToInsert = `Akhirnya, kedua-dua Objek A dan Objek B mencapai suhu akhir yang sama iaitu ${finalTemp}°C. Pada tahap ini, kadar pemindahan haba dari Objek A ke B adalah sama dengan kadar pemindahan dari B ke A, yang bermaksud aliran haba bersih adalah sifar. Sistem kini berada dalam keadaan keseimbangan termal. `;
+                        break;
+                }
+            }
+
+            textarea.value += textToInsert;
+            updateWordCount();
+        }
+
+        function updateWordCount() {
+            const text = document.getElementById('essay-draft').value.trim();
+            const words = text ? text.split(/\s+/).length : 0;
+            document.getElementById('word-count').innerText = words;
+        }
+
+        function clearDraft() {
+            document.getElementById('essay-draft').value = '';
+            updateWordCount();
+            showToast(dict[lang].toastClear);
+        }
+
+        // Copy essay structures for students' homework / exam practice
+        function copyEssayGuide() {
+            const { initTempA, initTempB, initMassA, initMassB } = getInputs();
+            const finalTemp = calculateEquilibriumTemp(initTempA, initMassA, specHeatA, initTempB, initMassB, specHeatB).toFixed(1);
+
+            let copyText = '';
+            if (lang === 'en') {
+                copyText = `PHYSICS ASSESSMENT STUDY GUIDE: THERMAL EQUILIBRIUM
+===================================================
+Simulated Settings:
+- Object A: Initial Temp = ${initTempA}°C, Mass = ${initMassA}kg
+- Object B: Initial Temp = ${initTempB}°C, Mass = ${initMassB}kg
+- Predicted Equilibrium Temp = ${finalTemp}°C
+
+ESSAY EXPLANATION OUTLINE:
+1. Contact Stage: Object A and Object B are placed in thermal contact.
+2. Direction of Heat Flow: Heat flows in both directions simultaneously, but net heat flow goes from hotter Object A to colder Object B.
+3. Rates of Transfer: As temperature difference decreases, rate of net heat flow slows down.
+4. Equilibrium State: Eventually, both reach the same temperature (${finalTemp}°C). Net heat transfer becomes zero. Thermal equilibrium is reached.`;
+            } else {
+                copyText = `PANDUAN ESEI FIZIK: KESEIMBANGAN TERMAL
+===================================================
+Tetapan Simulasi:
+- Objek A: Suhu Awal = ${initTempA}°C, Jisim = ${initMassA}kg
+- Objek B: Suhu Awal = ${initTempB}°C, Jisim = ${initMassB}kg
+- Ramalan Suhu Keseimbangan = ${finalTemp}°C
+
+RANGKA PENJELASAN ESEI:
+1. Peringkat Sentuhan: Objek A dan Objek B diletakkan dalam sentuhan termal.
+2. Arah Aliran Haba: Haba mengalir dalam kedua-dua arah secara serentak, tetapi aliran haba bersih mengalir dari Objek A (lebih panas) ke Objek B (lebih sejuk).
+3. Kadar Pemindahan: Apabila perbezaan suhu berkurang, kadar aliran haba bersih menjadi perlahan.
+4. Keadaan Keseimbangan: Akhirnya, kedua-dua blok mencapai suhu akhir yang sama (${finalTemp}°C). Pemindahan haba bersih adalah sifar. Keseimbangan termal dicapai.`;
+            }
+
+            // Copy to clipboard fallback format
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = copyText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            showToast(dict[lang].toastCopy);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-800 border border-teal-500 text-teal-400 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2 max-w-sm pointer-events-none";
+            
+            setTimeout(() => {
+                toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-800 border border-teal-500 text-teal-400 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2 max-w-sm pointer-events-none";
+            }, 3000);
+        }
+
+        // Set live list updates on text input
+        document.getElementById('essay-draft').addEventListener('input', updateWordCount);
+
+        // Window Lifecycle Load Initialization
+        window.onload = function() {
+            resizeCanvas();
+            updateTheoreticalCalculation();
+            resetSim();
+            setLanguage('en');
+        };
+
+        window.onresize = resizeCanvas;
+    </script>
 </body>
 </html>
